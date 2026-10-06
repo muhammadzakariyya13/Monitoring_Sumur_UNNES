@@ -1,0 +1,66 @@
+.history-intro { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; }
+.history-intro h2 { font-size: 21px; letter-spacing: -.4px; }
+.history-intro p { margin-top: 6px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.history-intro button { flex-shrink: 0; border-radius: 12px; min-height: 44px; }
+.history-view .filters { border-radius: 18px; margin-bottom: 18px; }
+.history-view .periods { width: 100%; background: #f4f7fa; border-radius: 12px; }
+.history-view .periods button { flex: 1; border-radius: 9px; }
+.history-view .periods button.active { background: var(--navy); color: white; }
+.history-view .date-fields { display: grid; grid-template-columns: 1fr 1fr 1.3fr auto; align-items: end; gap: 14px; }
+.history-view .date-fields label { min-width: 0; font-size: 12px; }
+.history-view .date-fields input, .history-view .date-fields select { width: 100%; min-width: 0; min-height: 44px; border-radius: 10px; background: #f9fbfd; }
+.history-view .filters > p { font-size: 11px; line-height: 1.7; margin-top: 14px; color: var(--muted); }
+.history-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+.history-kpis article { padding: 18px; background: white; border: 1px solid var(--border); border-radius: 16px; }
+.history-kpi-icon { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 11px; background: #eaf6fa; color: #147fa9; }
+.history-kpis article:nth-child(2) .history-kpi-icon { background: #eaf8f1; color: #228968; }
+.history-kpis article:nth-child(3) .history-kpi-icon { background: #fff7e6; color: #aa7109; }
+.history-kpis article:nth-child(4) .history-kpi-icon { background: #eef1f6; color: #64748b; }
+.history-kpis p { color: var(--muted); font-size: 12px; margin-top: 14px; }
+.history-kpis strong { display: block; font-size: 27px; margin: 6px 0; font-variant-numeric: tabular-nums; }
+.history-kpis strong small { font-size: 12px; font-weight: 400; color: var(--muted); }
+.history-kpis article > small { color: var(--muted); font-size: 11px; line-height: 1.5; display: block; }
+.history-chart { margin-bottom: 18px; }
+.history-chart .chart { height: 280px; margin: 14px 0; }
+.history-view .panel-heading { gap: 14px; }
+.history-view .panel-heading .tag { max-width: 45%; white-space: normal; text-align: right; }
+.history-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px; border-top: 1px solid var(--border); }
+.history-toolbar label { display: flex; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid var(--border); border-radius: 10px; color: var(--muted); background: #f9fbfd; width: min(330px, 75%); }
+.history-toolbar input { min-width: 0; width: 100%; background: transparent; border: 0; min-height: 44px; font-size: 13px; }
+.history-toolbar > span, .history-pagination { color: var(--muted); font-size: 12px; }
+.history-records td { font-size: 13px; }
+.history-records tbody tr:hover { background: #f7fafc; }
+.history-pagination { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid var(--border); }
+.history-pagination nav { display: flex; align-items: center; gap: 12px; }
+.history-pagination button { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--border); border-radius: 10px; color: var(--navy); background: white; }
+.history-pagination button:disabled { opacity: .4; cursor: default; }
+@media (max-width: 1100px) {
+ .history-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+ .history-view .date-fields { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+ .history-intro { align-items: flex-start; flex-wrap: wrap; }
+ .history-intro h2 { font-size: 20px; }
+ .history-intro p { font-size: 12px; }
+ .history-intro button { width: 100%; }
+ .history-view .filters { padding: 14px; }
+ .history-view .periods { flex-wrap: nowrap; overflow-x: auto; }
+ .history-view .periods button { flex: 0 0 auto; font-size: 12px; }
+ .history-view .date-fields { gap: 12px; }
+ .history-view .date-fields input, .history-view .date-fields select { font-size: 16px; }
+ .history-view .date-fields label:nth-child(3) { grid-column: 1 / -1; }
+ .history-kpis { gap: 10px; }
+ .history-kpis article { padding: 14px; }
+ .history-kpis strong { font-size: 23px; }
+ .history-kpis strong small { font-size: 10px; }
+ .history-kpis article > small { font-size: 10px; }
+ .history-toolbar { padding: 12px; }
+ .history-toolbar input { font-size: 16px; }
+ .history-records table { min-width: 0; }
+ .history-records thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+ .history-records tbody { display: block; padding: 0 12px; }
+ .history-records tr { display: block; padding: 8px 12px; background: #f7f9fc; border: 1px solid var(--border); border-radius: 14px; margin-bottom: 10px; }
+ .history-records td { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border: 0; font-size: 12px; white-space: normal; text-align: right; }
+ .history-records td::before { content: attr(data-label); color: var(--muted); text-align: left; margin-right: auto; }
+ .history-pagination { padding: 12px; flex-wrap: wrap; }
+}

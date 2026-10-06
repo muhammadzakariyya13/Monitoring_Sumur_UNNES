@@ -1,0 +1,61 @@
+.form { display: grid; gap: 10px; margin-bottom: 16px; }
+.form label { font-size: 13px; font-weight: 600; }
+.form input { width: 100%; min-width: 0; height: 52px; border: 1px solid #dfe7ee; border-radius: 13px; padding: 0 14px; font: inherit; background: white; }
+.form > .primary { margin-top: 8px; }
+.labelRow { display: flex; justify-content: space-between; align-items: center; }
+.link { border: 0; background: transparent; color: #147fa9; font-size: 13px; min-height: 44px; padding: 6px; }
+.password { position: relative; }
+.password input { padding-right: 48px; }
+.password button { position: absolute; right: 4px; top: 4px; width: 44px; height: 44px; display: grid; place-items: center; background: transparent; border: 0; color: #586d7e; }
+.separator { display: flex; align-items: center; gap: 12px; font-size: 12px; color: #64748b; margin: 20px 0; }
+.separator::before, .separator::after { content: ""; flex: 1; height: 1px; background: #e5ebf0; }
+.page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(32px, env(safe-area-inset-top)) 32px max(32px, env(safe-area-inset-bottom));
+  background: #f4f7fa;
+}
+.layout { width: min(100%, 1080px); min-height: 560px; display: grid; grid-template-columns: 1.05fr .95fr; overflow: hidden; background: white; border: 1px solid #082f5514; border-radius: 30px; box-shadow: 0 24px 70px #082f5517; }
+.brand { display: flex; flex-direction: column; justify-content: space-between; gap: 40px; padding: 50px 52px 46px; background: #082f55; color: white; min-width: 0; }
+.brand strong { font-size: 17px; letter-spacing: .3px; }
+.accent { display: block; width: 28px; height: 3px; margin-top: 12px; border-radius: 9px; background: #f5c842; }
+.story h1 { font-size: clamp(32px, 3vw, 42px); font-weight: 700; line-height: 1.18; letter-spacing: -1.5px; }
+.story p { margin-top: 18px; font-size: 14px; color: #b9ccdd; }
+.brand small { font-size: 12px; color: #b9ccdd; }
+.mobile { display: none; }
+.panel { min-width: 0; display: flex; align-items: center; justify-content: center; padding: 48px 40px; background: white; }
+.content { width: 100%; max-width: 360px; }
+.heading { margin-bottom: 28px; }
+.heading h2 { color: #082f55; font-size: 28px; font-weight: 800; letter-spacing: -.8px; }
+.heading p { margin-top: 9px; color: #64748b; font-size: 14px; line-height: 1.7; }
+.google { width: 100%; min-height: 52px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; background: white; border: 1px solid #dfe7ee; border-radius: 14px; color: #17324d; font-size: 14px; font-weight: 700; }
+.google:hover { background: #f8fafc; border-color: #bacbd9; }
+.googleLogo { width: 19px; height: 19px; flex-shrink: 0; }
+.demo { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 8px auto 0; padding: 8px 12px; min-height: 44px; background: transparent; border: 0; border-radius: 8px; font-size: 13px; color: #147fa9; }
+.demo:hover { background: #f4f7fa; text-decoration: underline; }
+@media (max-width: 900px) {
+  .brand { padding: 40px 32px; }
+  .story h1 { font-size: 32px; }
+  .panel { padding: 40px 28px; }
+}
+@media (max-width: 680px) {
+  .page { display: block; padding: 0; background: #082f55; }
+  .layout { display: block; min-height: 100dvh; width: 100%; border: 0; border-radius: 0; box-shadow: none; background: #082f55; }
+  .brand { display: none; }
+  .mobile { height: 225px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: max(28px, env(safe-area-inset-top)) 24px 48px; color: white; text-align: center; }
+  .mobile strong { font-size: 25px; font-weight: 800; letter-spacing: .5px; }
+  .mobile p { margin-top: 11px; color: #b9ccdd; font-size: 11px; letter-spacing: 2px; }
+  .panel { position: relative; min-height: calc(100dvh - 195px); margin-top: -30px; align-items: flex-start; padding: 42px 24px max(34px, env(safe-area-inset-bottom)); border-radius: 30px 30px 0 0; }
+  .heading { text-align: center; }
+  .heading h2 { font-size: 26px; }
+  .heading p { font-size: 13px; }
+}
+@media (max-width: 390px) {
+  .mobile { height: 210px; }
+  .mobile strong { font-size: 23px; }
+  .panel { min-height: calc(100dvh - 180px); padding: 38px 20px max(30px, env(safe-area-inset-bottom)); }
+  .google { font-size: 13px; }
+}
