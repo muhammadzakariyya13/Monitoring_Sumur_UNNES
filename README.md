@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TIRTA UNNES - Monitoring Air Sumur dan Gedung
 
-## Getting Started
+Panduan terbaru: [Trial Sumur dan Gedung](docs/TRIAL-SUMUR-GEDUNG.md). Model lokasi mendukung WELL/BUILDING. Pratinjau memakai data contoh; akun login membaca metadata Supabase. Integrasi IoT belum aktif. Migrasi 003 belum diterapkan ke server.
 
-First, run the development server:
+## Jalankan lokal
 
-```bash
+```powershell
+cd frontend
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka **http://localhost:3000**, lalu pilih **Lihat pratinjau**. Tanpa kredensial, tombol Google menjelaskan bahwa konfigurasi belum tersedia. Akses tanpa sesi ke dashboard diarahkan ke login; demo menggunakan rute `/demo/` tersendiri.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Untuk HP di Wi-Fi yang sama, alamat pengembangan `http://192.168.1.11:3000/` sudah diizinkan di `allowedDevOrigins`. Jika IP laptop berubah, perbarui daftar tersebut di `next.config.ts`. Untuk mencoba versi produksi yang lebih ringan, hentikan dev server (Ctrl+C), jalankan `npm run build`, lalu `npm run preview:lan` dan buka alamat LAN yang sama. Preview HTTP LAN ditujukan untuk demo; Google OAuth dan pemasangan PWA gunakan localhost/HTTPS sesuai panduan konfigurasi.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Build dan pengujian
 
-## Learn More
+```powershell
+npm run lint
+npm run build
+npm run preview
+```
 
-To learn more about Next.js, take a look at the following resources:
+`preview` melayani hasil statis di http://localhost:3000. Hentikan dev server sebelum preview. `out/` siap diunggah ke hosting statis subdomain; hosting tidak wajib mendukung Node.js. `npm start` juga menjalankan preview statis, bukan `next start`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```powershell
+npm test
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Tes memakai Playwright dengan Chrome lokal, meliputi alur demo desktop/mobile dan perhitungan WIB/domain. Jalankan build dahulu; tes melayani `out/` sendiri pada port 4173 agar terpisah dari dev server. Bila Chrome belum terpasang, pasang Chrome atau ubah channel Playwright sesuai browser uji. Pengujian OAuth/RLS produksi memerlukan proyek Supabase; daftar skenarionya ada di panduan konfigurasi.
 
-## Deploy on Vercel
+## Struktur frontend
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `frontend/src/components/`: antarmuka, peta, grafik, dan pengelolaan sesi.
+- `frontend/src/lib/data.ts`: tipe dan repository simulasi terpisah dari tampilan.
+- `frontend/src/lib/supabase.ts`: klien Supabase browser dengan PKCE.
+- `frontend/src/app/auth/callback/`: callback login kompatibel static export.
+- `supabase/migrations/001_water_auth.sql`: hook domain/identitas Google, skema awal, dan RLS SELECT.
+- `frontend/public/`: manifest, ikon aplikasi, service worker, dan halaman offline.
+- `frontend/tests/`: tes browser dan batas tanggal WIB.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Petunjuk lengkap: **[docs/SETUP.md](docs/SETUP.md)** — Google OAuth, redirect localhost/subdomain, Supabase hooks/RLS, hosting/PWA, kebutuhan data, dan rancangan browser sistem + deep link Capacitor.
+
+Isi `frontend/.env.local` berdasarkan [frontend/.env.example](frontend/.env.example) hanya setelah konfigurasi Supabase siap. Jalankan `Copy-Item .env.example .env.local` dari folder `frontend/`. Jangan memasukkan service-role key atau Google client secret ke frontend. Data air tetap simulasi hingga adapter backend dibuat berdasarkan kontrak IoT final.
+
+## Struktur proyek
+
+```text
+monitoring-air-unnes/
+├── frontend/       # Satu-satunya aplikasi Next.js aktif
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   ├── next.config.ts
+│   └── tsconfig.json
+├── backend/        # Belum ada server
+├── supabase/       # Migrasi SQL yang telah disiapkan
+├── docs/
+└── _legacy/        # Arsip aplikasi lama
+```
+
+Backend nantinya akan menggunakan Supabase untuk Auth, Realtime, Edge Functions, dan penerimaan data IoT. Folder `frontend/` adalah satu-satunya aplikasi Next.js aktif; `backend/` belum menjalankan server.
