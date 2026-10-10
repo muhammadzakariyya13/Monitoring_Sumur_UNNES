@@ -1,0 +1,100 @@
+.summary {
+  padding: 16px 0;
+  margin: 12px 0;
+  border-block: 1px solid var(--border);
+  min-width: 0;
+}
+.heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 13px;
+}
+.summary p {
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 10px 0;
+  overflow-wrap: anywhere;
+}
+.summary small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.warning {
+  color: var(--navy);
+  background: #fff5df;
+  border-left: 3px solid #f5c842;
+  padding: 3px 7px;
+  border-radius: 4px;
+}
+.summary progress {
+  display: block;
+  width: 100%;
+  height: 8px;
+  border: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  accent-color: var(--blue);
+  background: #e5ebf0;
+}
+.summary progress::-webkit-progress-bar {
+  background: #e5ebf0;
+}
+.summary progress::-webkit-progress-value {
+  background: #147fa9;
+}
+.summary progress::-moz-progress-bar {
+  background: #147fa9;
+}
+.settings {
+  padding: 0 16px 16px;
+}
+.settings > summary {
+  cursor: pointer;
+  padding: 12px 0;
+  font-size: 13px;
+  min-height: 44px;
+}
+.settings form {
+  max-width: 460px;
+  display: grid;
+  gap: 12px;
+  padding: 12px 0;
+}
+.settings label {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}
+.settings input[type="number"] {
+  min-width: 0;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  font: inherit;
+  font-size: 16px;
+}
+.settings .toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+.toggle input {
+  width: 20px;
+  height: 20px;
+  accent-color: #147fa9;
+}
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.actions button {
+  min-height: 44px;
+}

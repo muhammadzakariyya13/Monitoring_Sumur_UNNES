@@ -16,14 +16,12 @@ import { useAuth } from "./auth";
 import { supabase } from "@/lib/supabase";
 import styles from "./profile-view.module.css";
 
-export function ProfileView() {
-  const { user, logout } = useAuth();
+export function ProfileView({ adminPreview = false }: { adminPreview?: boolean }) {
+  const { user, role, logout } = useAuth();
 
-  const initialName =
-    user?.user_metadata?.full_name || "Pengguna TIRTA UNNES";
+  const initialName = user?.user_metadata?.full_name || (adminPreview ? "Admin TIRTA UNNES" : "Pengguna TIRTA UNNES");
 
-  const initialEmail =
-    user?.email || "Belum masuk akun";
+  const initialEmail = user?.email || (adminPreview ? "Akun pratinjau" : "Belum masuk akun");
 
   const [displayName, setDisplayName] = useState(initialName);
   const [name, setName] = useState(initialName);
@@ -48,9 +46,8 @@ export function ProfileView() {
    * password dikelola provider tersebut.
    */
   const passwordAccount =
-    user?.identities?.some(
-      (identity) => identity.provider === "email"
-    ) ?? false;
+    user?.identities?.some((identity) => identity.provider === "email") ??
+    false;
 
   function openEditProfile() {
     setName(displayName);
@@ -77,12 +74,10 @@ export function ProfileView() {
       return;
     }
 
-    /*
-     * DEMO
-     * Jika belum login, perubahan hanya disimpan
-     * di state lokal agar UI tetap bisa diuji.
-     */
-    if (!user || !supabase) { setEditError("Masuk dengan akun UNNES untuk mengubah profil."); return; }
+    if (!user || !supabase) {
+      setEditError("Masuk dengan akun UNNES untuk mengubah profil.");
+      return;
+    }
 
     /*
      * PRODUCTION
@@ -92,12 +87,11 @@ export function ProfileView() {
     setEditError("");
 
     try {
-      const { error } =
-        await supabase.auth.updateUser({
-          data: {
-            full_name: value,
-          },
-        });
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          full_name: value,
+        },
+      });
 
       if (error) throw error;
 
@@ -106,9 +100,7 @@ export function ProfileView() {
 
       modal.current?.close();
     } catch {
-      setEditError(
-        "Profil belum tersimpan. Periksa koneksi lalu coba lagi."
-      );
+      setEditError("Profil belum tersimpan. Periksa koneksi lalu coba lagi.");
     } finally {
       setBusy(false);
     }
@@ -140,24 +132,19 @@ export function ProfileView() {
     setPasswordError("");
 
     if (newPassword.length < 8) {
-      setPasswordError(
-        "Kata sandi minimal terdiri dari 8 karakter."
-      );
+      setPasswordError("Kata sandi minimal terdiri dari 8 karakter.");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setPasswordError(
-        "Konfirmasi kata sandi tidak sesuai."
-      );
+      setPasswordError("Konfirmasi kata sandi tidak sesuai.");
       return;
     }
 
-    /*
-     * Sementara agar form dapat diuji sebelum
-     * autentikasi Supabase aktif.
-     */
-    if (!user || !supabase || !passwordAccount) { setPasswordError("Perubahan sandi memerlukan akun email."); return; }
+    if (!user || !supabase || !passwordAccount) {
+      setPasswordError("Perubahan sandi memerlukan akun email.");
+      return;
+    }
 
     setBusy(true);
 
@@ -176,7 +163,7 @@ export function ProfileView() {
       setMessage("Kata sandi berhasil diperbarui.");
     } catch {
       setPasswordError(
-        "Kata sandi belum berhasil diperbarui. Silakan coba lagi."
+        "Kata sandi belum berhasil diperbarui. Silakan coba lagi.",
       );
     } finally {
       setBusy(false);
@@ -198,25 +185,18 @@ export function ProfileView() {
   }
 
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} ${role === "ADMIN" || adminPreview ? styles.adminMobile : ""}`}>
       {(message || error) && (
         <div
-          className={`${styles.notice} ${error ? styles.noticeError : ""
-            }`}
+          className={`${styles.notice} ${error ? styles.noticeError : ""}`}
           role={error ? "alert" : "status"}
         >
           {error || message}
         </div>
       )}
 
-      <section
-        className={styles.profileCard}
-        aria-label="Profil akun"
-      >
-        <div className={styles.cover}>
-          <div className={styles.coverCircleOne} />
-          <div className={styles.coverCircleTwo} />
-        </div>
+      <section className={styles.profileCard} aria-label="Profil akun">
+        <div className={styles.cover} aria-hidden="true" />
 
         <div className={styles.profileContent}>
           <div className={styles.identity}>
@@ -230,10 +210,7 @@ export function ProfileView() {
                   priority
                 />
               ) : (
-                <UserRound
-                  size={38}
-                  strokeWidth={1.8}
-                />
+                <UserRound size={38} strokeWidth={1.8} />
               )}
             </div>
 
@@ -245,11 +222,15 @@ export function ProfileView() {
 
                 <span>{initialEmail}</span>
               </div>
+              <span className={styles.role}>
+                {role === "ADMIN" || adminPreview ? "Admin" : "Viewer"}
+              </span>
             </div>
           </div>
 
           <button
             type="button"
+            aria-label="Edit Profil"
             className={styles.editButton}
             onClick={openEditProfile}
             disabled={busy || !user}
@@ -258,68 +239,54 @@ export function ProfileView() {
             <span>Edit Profil</span>
           </button>
         </div>
-      </section>
+        <section className={styles.actions} aria-label="Pengaturan akun">
+          <button
+            type="button"
+            onClick={openPasswordModal}
+            disabled={busy || !passwordAccount}
+            className={styles.action}
+          >
+            <span className={styles.actionMain}>
+              <span className={styles.actionIcon}>
+                <LockKeyhole size={19} />
+              </span>
 
-      <section
-        className={styles.actions}
-        aria-label="Pengaturan akun"
-      >
-        <button
-          type="button"
-          onClick={openPasswordModal}
-          disabled={busy || !passwordAccount}
-          className={styles.action}
-        >
-          <span className={styles.actionMain}>
-            <span className={styles.actionIcon}>
-              <LockKeyhole size={19} />
+              <span className={styles.actionText}>
+                <strong>Ubah Kata Sandi</strong>
+                <small>Perbarui keamanan akun</small>
+              </span>
             </span>
 
-            <span className={styles.actionText}>
-              <strong>Ubah Kata Sandi</strong>
-              <small>Perbarui keamanan akun</small>
-            </span>
-          </span>
+            <ChevronRight size={19} className={styles.chevron} />
+          </button>
 
-          <ChevronRight
-            size={19}
-            className={styles.chevron}
-          />
-        </button>
+          <button
+            type="button"
+            aria-label="Keluar"
+            onClick={handleLogout}
+            disabled={busy}
+            className={`${styles.action} ${styles.logout}`}
+          >
+            <span className={styles.actionMain}>
+              <span className={`${styles.actionIcon} ${styles.logoutIcon}`}>
+                <LogOut size={19} />
+              </span>
 
-        <button
-          type="button"
-          aria-label="Keluar"
-          onClick={handleLogout}
-          disabled={busy}
-          className={`${styles.action} ${styles.logout}`}
-        >
-          <span className={styles.actionMain}>
-            <span
-              className={`${styles.actionIcon} ${styles.logoutIcon}`}
-            >
-              <LogOut size={19} />
+              <span className={styles.actionText}>
+                <strong>Keluar</strong>
+                <small>Keluar dari akun pada perangkat ini</small>
+              </span>
             </span>
 
-            <span className={styles.actionText}>
-              <strong>Keluar</strong>
-              <small>Keluar dari akun pada perangkat ini</small>
-            </span>
-          </span>
-
-          <ChevronRight
-            size={19}
-            className={styles.chevron}
-          />
-        </button>
+            <ChevronRight size={19} className={styles.chevron} />
+          </button>
+        </section>
       </section>
 
       <div className={styles.footer}>
         <div>
           <strong>TIRTA UNNES</strong>
-          <span>
-            Monitoring Air Sumur dan Gedung
-          </span>
+          <span>Monitoring Air Sumur dan Gedung</span>
         </div>
 
         <span>Universitas Negeri Semarang</span>
@@ -328,6 +295,7 @@ export function ProfileView() {
       {/* EDIT PROFILE */}
       <dialog
         ref={modal}
+        aria-label="Edit Profil"
         className={styles.modal}
         onCancel={(e) => {
           if (busy) e.preventDefault();
@@ -379,9 +347,7 @@ export function ProfileView() {
                 required
                 maxLength={80}
                 value={name}
-                onChange={(e) =>
-                  setName(e.target.value)
-                }
+                onChange={(e) => setName(e.target.value)}
                 placeholder="Masukkan nama lengkap"
               />
             </label>
@@ -392,24 +358,14 @@ export function ProfileView() {
               <div className={styles.readonlyField}>
                 <Mail size={15} />
 
-                <input
-                  type="email"
-                  value={initialEmail}
-                  readOnly
-                />
+                <input type="email" value={initialEmail} readOnly />
               </div>
 
-              <small>
-                Email mengikuti akun login dan tidak
-                dapat diubah.
-              </small>
+              <small>Email mengikuti akun login dan tidak dapat diubah.</small>
             </label>
 
             {editError && (
-              <p
-                className={styles.formError}
-                role="alert"
-              >
+              <p className={styles.formError} role="alert">
                 {editError}
               </p>
             )}
@@ -425,14 +381,8 @@ export function ProfileView() {
               Batal
             </button>
 
-            <button
-              type="submit"
-              className={styles.saveButton}
-              disabled={busy}
-            >
-              {busy
-                ? "Menyimpan..."
-                : "Simpan Perubahan"}
+            <button type="submit" className={styles.saveButton} disabled={busy}>
+              {busy ? "Menyimpan..." : "Simpan Perubahan"}
             </button>
           </footer>
         </form>
@@ -440,6 +390,7 @@ export function ProfileView() {
 
       <dialog
         ref={passwordModal}
+        aria-label="Ubah Kata Sandi"
         className={styles.modal}
         onCancel={(e) => {
           if (busy) e.preventDefault();
@@ -472,9 +423,7 @@ export function ProfileView() {
                 minLength={8}
                 autoComplete="new-password"
                 value={newPassword}
-                onChange={(e) =>
-                  setNewPassword(e.target.value)
-                }
+                onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Minimal 8 karakter"
               />
             </label>
@@ -488,18 +437,13 @@ export function ProfileView() {
                 minLength={8}
                 autoComplete="new-password"
                 value={confirmPassword}
-                onChange={(e) =>
-                  setConfirmPassword(e.target.value)
-                }
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Masukkan kembali kata sandi"
               />
             </label>
 
             {passwordError && (
-              <p
-                className={styles.formError}
-                role="alert"
-              >
+              <p className={styles.formError} role="alert">
                 {passwordError}
               </p>
             )}
@@ -515,11 +459,7 @@ export function ProfileView() {
               Batal
             </button>
 
-            <button
-              type="submit"
-              className={styles.saveButton}
-              disabled={busy}
-            >
+            <button type="submit" className={styles.saveButton} disabled={busy}>
               {busy ? "Menyimpan..." : "Ubah Kata Sandi"}
             </button>
           </footer>

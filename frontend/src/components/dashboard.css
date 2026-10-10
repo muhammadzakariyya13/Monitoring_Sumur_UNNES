@@ -68,9 +68,40 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  border-top: 1px solid var(--border);
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  border-top: 1px solid #ffffff30;
+  border-radius: 0 0 9px 9px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
   margin-top: auto;
-  padding-top: 20px;
+  padding: 14px 6px;
+  transition: background 150ms ease;
+}
+.sidebar-footer:hover,
+.sidebar-footer[aria-current="page"] {
+  background: #ffffff0d;
+}
+.sidebar-footer:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 3px;
+}
+.sidebar-account-text {
+  flex: 1;
+  min-width: 0;
+}
+.sidebar-footer > svg {
+  flex-shrink: 0;
+  color: #b4cedf;
+}
+.sidebar-account-text strong,
+.sidebar-account-text small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .sidebar-footer strong {
   font-size: 12px;
@@ -515,8 +546,7 @@
   flex: 1;
   min-width: 0;
 }
-.date-fields input,
-.date-fields select {
+.date-fields input {
   border: 1px solid var(--border);
   border-radius: 7px;
   padding: 10px;
@@ -1169,9 +1199,42 @@ th {
 .admin-form { padding: 20px; margin: 16px 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
 .admin-form h3, .admin-form > div { grid-column: 1 / -1; }
 .admin-form label, .admin-users label { display: grid; gap: 6px; font-size: 13px; }
-.admin-form input, .admin-form select, .admin-users select { width: 100%; min-height: 44px; border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
+.admin-form input { width: 100%; min-height: 44px; border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
 .admin-users { padding: 0 18px; }
 .admin-form > div { display: flex; gap: 12px; }
 @media(max-width:640px) { .admin-form { grid-template-columns: 1fr; } .admin-users .well-row { flex-wrap: wrap; } }
 
 .building-marker { display: grid; place-items: center; background: #147fa9; color: white; border: 3px solid white; border-radius: 7px; box-shadow: 0 2px 8px #082f5533; font-size: 23px; }
+.management-hub { max-width: 680px; margin-inline: auto; }
+.management-hub > p { color: #526980; font-size: 13px; line-height: 1.7; margin: 0 0 20px; }
+.management-hub > button { width: 100%; display: flex; align-items: center; gap: 16px; padding: 22px 18px; border: 1px solid var(--border); border-radius: 16px; background: white; color: #082f55; text-align: left; margin-bottom: 14px; }
+.management-hub > button > svg:first-child { color: #147fa9; flex-shrink: 0; }
+.management-hub > button > svg:last-child { margin-left: auto; flex-shrink: 0; }
+.management-hub strong, .management-hub small { display: block; }
+.management-hub strong { font-size: 14px; }
+.management-hub small { color: #526980; font-size: 12px; margin-top: 7px; line-height: 1.5; }
+.management-hub button:hover { background: #f8fafc; }
+.management-hub button:focus-visible, .admin-bottom-nav button:focus-visible { outline: 3px solid #147fa9; outline-offset: -3px; }
+
+.admin-preview-note { font-size: 11px; color: #526980; margin-bottom: 18px; }
+.admin-preview-note summary { cursor: pointer; min-height: 44px; align-content: center; }
+.admin-preview-note p { margin: 0 0 12px; line-height: 1.7; max-width: 560px; }
+@media (max-width: 640px) {
+  .bottom-nav.admin-bottom-nav { padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); box-shadow: none; gap: 3px; }
+  .admin-bottom-nav .nav-item { min-width: 0; min-height: 56px; padding: 6px 0; gap: 4px; font-size: 10px; border-radius: 10px; color: #526980; }
+  .admin-bottom-nav .nav-item.active { color: #082f55; background: #edf4f8; }
+  .admin-bottom-nav .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+  .admin-preview-note { margin-bottom: 12px; }
+}
+
+@media (max-width: 640px) { .admin-bottom-nav .nav-item:not(.active):hover { background: transparent; } }
+
+@media (max-width: 640px) {
+  .topbar.admin-child-header { gap: 8px; padding-inline: 12px; }
+  .admin-child-header > div:not(.top-actions) { display: flex; flex: 1; min-width: 0; flex-direction: column; align-items: flex-start; gap: 0; }
+  .admin-child-header h1 { font-size: 16px; line-height: 1.4; }
+  .admin-child-header .top-actions { gap: 6px; flex-shrink: 0; }
+  .admin-child-header + .content { padding-top: 8px; }
+  .admin-child-header + .content .admin-preview-note { margin-bottom: 4px; }
+  .management-hub > button { padding: 18px 16px; margin-bottom: 10px; border-radius: 14px; }
+}

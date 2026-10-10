@@ -12,3 +12,9 @@
 .unread { background: #f0f7fb; }
 .item:hover { background: #e7f2f8; }
 .empty { padding: 20px; }
+
+.item > span { min-width: 0; overflow-wrap: anywhere; }
+.panel button { min-height: 44px; }
+@media (max-width: 640px) {
+  .panel { position: fixed; top: 72px; left: 12px; right: 12px; width: auto; max-height: calc(100dvh - 160px - env(safe-area-inset-bottom)); }
+}

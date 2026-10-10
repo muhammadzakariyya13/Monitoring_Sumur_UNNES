@@ -22,6 +22,8 @@ export const monitoringRepository = {
       lng: row.longitude,
       active: row.active,
       occupants: row.occupants,
+      dailyUsageLimit: row.daily_usage_limit == null ? null : Number(row.daily_usage_limit),
+      limitNotificationEnabled: row.limit_notification_enabled === true,
       flow: null,
       updatedAt: "",
     }));

@@ -9,17 +9,22 @@ import {
   Search,
   TrendingUp,
 } from "lucide-react";
-import { aggregate, number, type Reading } from "@/lib/data";
+import { aggregate, number, type Reading, type MonitoringLocation } from "@/lib/data";
+import { BuildingUsage } from "./building-usage";
 import { UsageChart } from "./usage-chart";
 
 export function HistoryResults({
   readings,
+  selectedLocation,
+  illustrative = false,
   series,
   location,
   start,
   end,
 }: {
   readings: Reading[];
+  selectedLocation?: MonitoringLocation;
+  illustrative?: boolean;
   series: ReturnType<typeof aggregate>;
   location: string;
   start: string;
@@ -41,10 +46,11 @@ export function HistoryResults({
   const shown = rows.slice((current - 1) * 10, current * 10);
   return (
     <>
+      <h2 className="history-summary-heading">Ringkasan penggunaan</h2>
       <section className="history-kpis" aria-label="Ringkasan riwayat">
         {[
           {
-            title: "Total pemakaian",
+            title: selectedLocation?.type === "WELL" ? "Total produksi air" : "Total pemakaian",
             value: readings.length ? number(total) : "—",
             unit: "m³",
             note: "Akumulasi periode terpilih",
@@ -84,6 +90,7 @@ export function HistoryResults({
           </article>
         ))}
       </section>
+      {selectedLocation && <BuildingUsage location={selectedLocation} volumeM3={days.length ? total / days.length : null} history illustrative={illustrative} />}
       <section className="panel history-chart">
         <div className="panel-heading">
           <div>
@@ -102,7 +109,6 @@ export function HistoryResults({
             <h2>Data riwayat</h2>
             <p>Rincian volume untuk {location.toLowerCase()}.</p>
           </div>
-          <span className="tag">Data contoh</span>
         </div>
         <div className="history-toolbar">
           <label>
@@ -153,7 +159,7 @@ export function HistoryResults({
                     <strong>{number(r.volume, 3)} m³</strong>
                   </td>
                   <td data-label="Sumber">
-                    <span className="tag">Data contoh</span>
+                    <span>{illustrative ? "Data contoh" : "Data diterima"}</span>
                   </td>
                 </tr>
               ))}

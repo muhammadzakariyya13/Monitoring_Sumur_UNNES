@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-for (const width of [360, 390, 430, 768, 1440]) {
+for (const width of [360, 390, 430, 768, 1024, 1440]) {
   test(`Tampilan dan navigasi ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.route("**/*.tile.openstreetmap.org/**", (route) =>
@@ -38,7 +38,39 @@ for (const width of [360, 390, 430, 768, 1440]) {
     await page.getByRole("button", { name: "Tutup detail" }).click();
     await nav.getByRole("button", { name: "Riwayat", exact: true }).click();
     await check("history");
-    await nav.getByRole("button", { name: "Profil", exact: true }).click();
+    await expect(
+      page
+        .locator(".sidebar nav")
+        .getByRole("button", { name: "Profil", exact: true }),
+    ).toHaveCount(0);
+    if (width <= 640) {
+      await expect(page.locator(".bottom-nav button")).toHaveText([
+        "Beranda",
+        "Peta",
+        "Riwayat",
+        "Profil",
+      ]);
+      await nav.getByRole("button", { name: "Profil", exact: true }).click();
+      await expect(
+        nav.getByRole("button", { name: "Profil", exact: true }),
+      ).toHaveAttribute("aria-current", "page");
+    } else {
+      await page.locator(".sidebar-footer").focus();
+      await page.keyboard.press("Enter");
+      await expect(page.locator(".sidebar-footer")).toHaveAttribute(
+        "aria-current",
+        "page",
+      );
+      await expect(
+        page.locator(".sidebar nav [aria-current=page]"),
+      ).toHaveCount(0);
+    }
+    await expect(
+      page.getByRole("heading", { name: "Profil", exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("region", { name: "Profil akun" }),
+    ).toContainText("Viewer");
     await check("profile");
   });
 }

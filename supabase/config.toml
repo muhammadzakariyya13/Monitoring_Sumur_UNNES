@@ -1,0 +1,4 @@
+[functions.admin-users]
+# Handler verifies JWT via Auth /user and checks database role on every request.
+# Supports projects using asymmetric JWT signing keys as well as legacy keys.
+verify_jwt = false

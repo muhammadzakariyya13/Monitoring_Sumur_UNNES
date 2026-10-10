@@ -24,8 +24,7 @@ body {
 }
 button,
 a,
-input,
-select {
+input {
   -webkit-tap-highlight-color: transparent;
 }
 button,
@@ -45,7 +44,6 @@ button:disabled {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
-select:focus-visible,
 summary:focus-visible,
 [tabindex]:focus-visible {
   outline: 3px solid #dca919;

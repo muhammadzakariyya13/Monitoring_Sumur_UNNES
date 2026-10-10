@@ -45,3 +45,20 @@ next-env.d.ts
 
 # generated visual review
 visual-review/
+# local credentials and signing keys
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+/.aws/
+/.codex/
+/.agents/
+
+# local tooling, caches, and reports
+coverage/
+*.log
+supabase/.temp/
+supabase/.branches/
+/.report-test-tools/
+/_legacy/

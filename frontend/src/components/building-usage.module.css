@@ -1,0 +1,39 @@
+.summary {
+  margin: 16px 0;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: white;
+  min-width: 0;
+}
+.summary dl {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 12px;
+  margin: 0;
+}
+.summary dl > div {
+  min-width: 0;
+}
+.summary dt {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.summary dd {
+  margin: 6px 0 0;
+  font-size: 17px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.summary dd span {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 500;
+}
+.summary p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}

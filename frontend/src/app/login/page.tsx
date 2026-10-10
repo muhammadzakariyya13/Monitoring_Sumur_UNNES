@@ -38,9 +38,13 @@ export default function Login() {
   }
   // Sinkronisasi pesan dari sessionStorage setelah hydration; tidak tersedia saat static build.
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMessage(sessionStorage.getItem("auth-message") ?? "");
-    sessionStorage.removeItem("auth-message");
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setMessage(sessionStorage.getItem("auth-message") ?? "");
+      sessionStorage.removeItem("auth-message");
+    } catch {
+      // Pesan sesi opsional; browser yang menolak storage tetap bisa membuka demo.
+    }
   }, []);
   useEffect(() => {
     if (ready && user) router.replace("/");

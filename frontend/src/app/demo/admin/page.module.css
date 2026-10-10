@@ -1,0 +1,35 @@
+﻿.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.header strong {
+  color: var(--muted);
+  font-size: 12px;
+}
+.header h1 {
+  font-size: 23px;
+  margin-top: 4px;
+}
+.header a {
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.page > p {
+  margin-bottom: 20px;
+}
+@media (max-width: 640px) {
+  .page {
+    padding: 16px;
+  }
+  .header {
+    flex-wrap: wrap;
+  }
+}

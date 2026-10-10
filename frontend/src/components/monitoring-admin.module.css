@@ -1,0 +1,334 @@
+.page {
+  min-width: 0;
+}
+.page button,
+.dialog button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.page button:focus-visible,
+.dialog :focus-visible {
+  outline: 3px solid #147fa9;
+  outline-offset: 3px;
+}
+.page button:active,
+.dialog button:active {
+  transform: translateY(1px);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, max(290px, calc((100% - 36px) / 3))), 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+.card {
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  color: #082f55;
+  overflow-wrap: anywhere;
+}
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.kind {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #147fa9;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f4f7fa;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.badge::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #718096;
+}
+.badge[data-active="true"]::before {
+  background: #147fa9;
+}
+.card h3 {
+  font-size: 18px;
+  line-height: 1.5;
+  margin: 0;
+}
+.code {
+  margin: 6px 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+.area {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #526980;
+  margin: 0;
+}
+.facts {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+}
+.facts > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.facts dt {
+  color: #526980;
+}
+.facts dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 600;
+}
+.missing {
+  color: #64748b;
+  font-weight: 400;
+}
+.cardActions {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 4px;
+  align-items: flex-start;
+}
+.cardActions > button,
+.settings {
+  flex: 1;
+  min-width: 0;
+}
+.settings > button {
+  width: 100%;
+}
+.saved {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #526980;
+}
+.dialog {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: white;
+  color: #082f55;
+  padding: 0;
+  width: min(560px, calc(100% - 32px));
+  max-height: calc(100dvh - 40px);
+  margin: auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  box-shadow: 0 20px 70px #082f5526;
+}
+.dialog::backdrop {
+  background: #082f5580;
+}
+.dialogHeader {
+  padding: 22px 24px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.dialogHeader h2 {
+  font-size: 19px;
+  margin: 0;
+  line-height: 1.5;
+}
+.dialogHeader p {
+  font-size: 12px;
+  color: #526980;
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+}
+.dialogHeader button {
+  flex-shrink: 0;
+  width: 44px;
+}
+.form {
+  padding: 24px;
+  display: grid;
+  gap: 18px;
+}
+.form fieldset {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.form legend {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #526980;
+}
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.form label {
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+  min-width: 0;
+}
+.form input:not([role="switch"]) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  border: 1px solid var(--border);
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 16px;
+  color: #082f55;
+}
+.form small {
+  font-size: 11px;
+  line-height: 1.7;
+  color: #526980;
+}
+.form .switchRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 48px;
+}
+.switchRow small {
+  display: block;
+  margin-top: 4px;
+}
+.switchRow input {
+  appearance: none;
+  flex-shrink: 0;
+  width: 46px;
+  height: 28px;
+  border-radius: 20px;
+  background: #a1afbd;
+  border: 0;
+  cursor: pointer;
+  margin: 8px 0;
+  position: relative;
+  transition: background 0.18s;
+}
+.switchRow input::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.18s;
+}
+.switchRow input:checked {
+  background: #147fa9;
+}
+.switchRow input:checked::before {
+  transform: translateX(18px);
+}
+.switchRow input:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  position: sticky;
+  bottom: -24px;
+  background: white;
+  padding-bottom: 12px;
+}
+@media (hover: hover) {
+  .card:hover {
+    border-color: #c5d6e4;
+  }
+  .page button:hover,
+  .dialog button:hover {
+    filter: brightness(0.97);
+  }
+}
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  .card {
+    padding: 20px;
+    gap: 18px;
+  }
+  .dialog {
+    width: 100%;
+    max-width: none;
+    margin: auto 0 0;
+    max-height: calc(100dvh - 20px);
+    border-radius: 22px 22px 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .dialogHeader {
+    padding: 20px;
+  }
+  .form {
+    padding: 20px;
+  }
+  .fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .actions {
+    bottom: -20px;
+  }
+  .actions button {
+    flex: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .switchRow input,
+  .switchRow input::before {
+    transition: none;
+  }
+}
+
+.page :global(.periods) button[aria-pressed="true"] { background: #082f55; color: white; border-radius: 10px; }
+@media (max-width: 640px) {
+  .page > :global(.history-intro) h2 { display: none; }
+  .page > :global(.history-intro) { margin-bottom: 12px; gap: 12px; }
+  .page > :global(.history-intro) p { font-size: 12px; margin-top: 0; }
+}

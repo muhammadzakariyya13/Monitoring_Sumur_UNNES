@@ -23,7 +23,11 @@ export const placeholderRepository: WaterRepository = {
         code: "GDG-RKT",
         type: "BUILDING",
         active: true,
-        occupants: null,
+        // Development example only, not an official UNNES headcount.
+        occupants: 250,
+        // Example configuration only, not a UNNES policy. Live defaults to NULL.
+        dailyUsageLimit: 3,
+        limitNotificationEnabled: true,
         name: "Gedung Rektorat",
         area: "Area Rektorat",
         lat: -7.0505,

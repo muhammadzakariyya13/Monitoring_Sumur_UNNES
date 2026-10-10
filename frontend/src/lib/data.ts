@@ -11,6 +11,8 @@ export interface MonitoringLocation {
   updatedAt: string;
   active: boolean;
   occupants: number | null;
+  dailyUsageLimit?: number | null;
+  limitNotificationEnabled?: boolean;
 }
 export type Reading = { locationId: string; at: string; liters: number };
 export type Snapshot = {
@@ -74,4 +76,11 @@ export function aggregate(readings: Reading[], mode: "hour" | "day" | "month") {
       label: mode === "hour" ? key.slice(11) + ":00" : key.slice(5),
       volume: +(liters / 1000).toFixed(3),
     }));
+}
+
+// Null means unavailable, including absent telemetry or an unusable headcount.
+export function litersPerPerson(volumeM3: number | null | undefined, occupants: number | null | undefined): number | null {
+  if (volumeM3 == null || !Number.isFinite(volumeM3) || volumeM3 < 0 || occupants == null || !Number.isInteger(occupants) || occupants <= 0) return null;
+  const result = (volumeM3 * 1000) / occupants;
+  return Number.isFinite(result) ? result : null;
 }

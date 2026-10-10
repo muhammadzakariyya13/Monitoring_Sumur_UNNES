@@ -1,5 +1,7 @@
 .page {
   width: 100%;
+  max-width: 860px;
+  margin-inline: auto;
 }
 
 /* ==============================
@@ -40,55 +42,17 @@
 
   background: #fff;
 
-  box-shadow:
-    0 8px 28px rgba(8, 47, 85, 0.045);
+  box-shadow: 0 8px 28px rgba(8, 47, 85, 0.045);
 }
 
 .cover {
   position: relative;
 
-  height: 112px;
+  height: 40px;
 
   overflow: hidden;
 
-  background:
-    linear-gradient(
-      115deg,
-      #082f55 0%,
-      #0c537b 58%,
-      #1386aa 100%
-    );
-}
-
-.coverCircleOne,
-.coverCircleTwo {
-  position: absolute;
-
-  border-radius: 50%;
-
-  pointer-events: none;
-}
-
-.coverCircleOne {
-  top: -110px;
-  right: 4%;
-
-  width: 270px;
-  height: 270px;
-
-  border: 45px solid
-    rgba(255, 255, 255, 0.04);
-}
-
-.coverCircleTwo {
-  bottom: -105px;
-  left: 45%;
-
-  width: 200px;
-  height: 200px;
-
-  border: 1px solid
-    rgba(255, 255, 255, 0.09);
+  background: linear-gradient(115deg, #082f55 0%, #0c537b 58%, #1386aa 100%);
 }
 
 /* ==============================
@@ -102,7 +66,7 @@
 
   min-height: 108px;
 
-  padding: 0 28px;
+  padding: 22px 24px;
 
   gap: 24px;
 }
@@ -122,12 +86,12 @@
   display: grid;
   place-items: center;
 
-  width: 82px;
-  height: 82px;
+  width: 68px;
+  height: 68px;
 
-  flex: 0 0 82px;
+  flex: 0 0 68px;
 
-  margin-top: -42px;
+  margin-top: 0;
 
   overflow: hidden;
 
@@ -137,8 +101,7 @@
   background: #edf7fa;
   color: #1383aa;
 
-  box-shadow:
-    0 7px 22px rgba(8, 47, 85, 0.1);
+  box-shadow: 0 7px 22px rgba(8, 47, 85, 0.1);
 }
 
 .avatar img {
@@ -183,6 +146,27 @@
   flex-shrink: 0;
 
   color: #1683aa;
+}
+
+.email span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.role {
+  display: inline-flex;
+  margin-top: 8px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: #eef7fa;
+  color: var(--navy);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.page button:focus-visible {
+  outline: 2px solid #147fa9;
+  outline-offset: -3px;
 }
 
 /* ==============================
@@ -235,14 +219,9 @@
 ============================== */
 
 .actions {
-  display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
-  gap: 12px;
-
-  margin-top: 12px;
+  border-top: 1px solid var(--border);
+  margin: 0 24px;
+  padding: 4px 0;
 }
 
 .action {
@@ -251,36 +230,29 @@
   justify-content: space-between;
 
   width: 100%;
-  min-height: 72px;
+  min-height: 68px;
 
   gap: 16px;
 
-  padding: 13px 16px;
+  padding: 12px 0;
 
-  border: 1px solid var(--border);
-  border-radius: 14px;
+  border: 0;
+  border-radius: 0;
 
   background: #fff;
   color: var(--navy);
 
   text-align: left;
 
-  box-shadow:
-    0 6px 22px rgba(8, 47, 85, 0.035);
+  transition: background 0.15s ease;
+}
 
-  transition:
-    transform 0.15s ease,
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
+.action + .action {
+  border-top: 1px solid var(--border);
 }
 
 .action:hover:not(:disabled) {
-  transform: translateY(-1px);
-
-  border-color: #d2e0e7;
-
-  box-shadow:
-    0 9px 25px rgba(8, 47, 85, 0.06);
+  background: #f4f7fa;
 }
 
 .actionMain {
@@ -391,7 +363,8 @@
   margin: auto;
   padding: 0;
 
-  overflow: hidden;
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
 
   border: 1px solid var(--border);
   border-radius: 18px;
@@ -399,8 +372,7 @@
   background: #fff;
   color: var(--navy);
 
-  box-shadow:
-    0 30px 80px rgba(8, 47, 85, 0.2);
+  box-shadow: 0 30px 80px rgba(8, 47, 85, 0.2);
 }
 
 .modal::backdrop {
@@ -490,6 +462,11 @@
 .modalIdentity strong,
 .modalIdentity span {
   display: block;
+  overflow-wrap: anywhere;
+}
+
+.modalIdentity > div:last-child {
+  min-width: 0;
 }
 
 .modalIdentity strong {
@@ -542,8 +519,7 @@
 .field input:focus {
   border-color: #1785ac;
 
-  box-shadow:
-    0 0 0 3px rgba(23, 133, 172, 0.08);
+  box-shadow: 0 0 0 3px rgba(23, 133, 172, 0.08);
 }
 
 .readonlyField {
@@ -647,17 +623,12 @@
   }
 
   .cover {
-    height: 64px;
-  }
-
-  .coverCircleOne,
-  .coverCircleTwo {
-    display: none;
+    height: 28px;
   }
 
   .profileContent {
-    position: relative;
-
+    flex-wrap: wrap;
+    gap: 16px;
     min-height: 88px;
 
     padding: 13px 15px;
@@ -673,7 +644,7 @@
 
     flex-basis: 52px;
 
-    margin-top: -36px;
+    margin-top: 0;
 
     border-width: 4px;
     border-radius: 15px;
@@ -687,31 +658,12 @@
   }
 
   .identityText h2 {
-    max-width: calc(100vw - 135px);
-
-    overflow: hidden;
-
-    font-size: 13px;
-
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-size: 15px;
   }
 
   .email {
-    max-width: calc(100vw - 135px);
-
     margin-top: 3px;
-
-    overflow: hidden;
-
-    font-size: 9px;
-  }
-
-  .email span {
-    overflow: hidden;
-
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-size: 11px;
   }
 
   .email svg {
@@ -719,52 +671,18 @@
   }
 
   .editButton {
-    position: absolute;
-
-    top: -48px;
-    right: 15px;
-
-    width: 34px;
-    height: 34px;
-    min-height: 34px;
-
-    padding: 0;
-
-    border-color:
-      rgba(255, 255, 255, 0.35);
-
-    background:
-      rgba(255, 255, 255, 0.12);
-
-    color: #fff;
-  }
-
-  .editButton span {
-    display: none;
-  }
-
-  .editButton svg {
-    color: #fff;
+    min-height: 44px;
   }
 
   /* compact action list */
   .actions {
-    display: block;
-
-    margin-top: 10px;
-
-    overflow: hidden;
-
-    border: 1px solid var(--border);
-    border-radius: 15px;
-
-    background: #fff;
+    margin: 0 15px;
   }
 
   .action {
     min-height: 57px;
 
-    padding: 10px 13px;
+    padding: 12px 0;
 
     border: 0;
     border-radius: 0;
@@ -796,13 +714,13 @@
   }
 
   .actionText strong {
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .actionText small {
     margin-top: 2px;
 
-    font-size: 8px;
+    font-size: 11px;
   }
 
   .footer {
@@ -841,10 +759,20 @@
     flex: 1;
   }
 }
-
-@media (max-width: 390px) {
-  .identityText h2,
-  .email {
-    max-width: calc(100vw - 125px);
-  }
+@media (max-width: 640px) {
+  .adminMobile .cover { display: none; }
+  .adminMobile .profileContent { padding: 22px 18px 0; gap: 18px; }
+  .adminMobile .identity { width: 100%; align-items: center; gap: 14px; }
+  .adminMobile .avatar { width: 56px; height: 56px; flex-basis: 56px; border: 0; border-radius: 50%; }
+  .adminMobile .identityText h2 { font-size: 16px; line-height: 1.5; }
+  .adminMobile .email { font-size: 12px; line-height: 1.6; }
+  .adminMobile .editButton { width: 100%; justify-content: flex-start; border: 0; border-top: 1px solid var(--border); border-radius: 0; padding: 16px 0; min-height: 58px; font-size: 12px; gap: 14px; }
+  .adminMobile .actions { margin-inline: 18px; padding: 0; }
+  .adminMobile .action { min-height: 64px; }
+  .adminMobile .actionIcon { background: transparent; width: 18px; flex-basis: 18px; }
+  .adminMobile .actionIcon svg { width: 18px; height: 18px; }
+  .adminMobile .actionMain { gap: 14px; }
+  .adminMobile .modal button { min-height: 44px; }
+  .adminMobile .modalHeader > button { min-width: 44px; }
+  .adminMobile .field input { font-size: 16px; min-height: 44px; }
 }

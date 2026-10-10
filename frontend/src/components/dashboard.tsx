@@ -3,8 +3,10 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   Building2,
+  SlidersHorizontal,
+  Users,
   Activity,
-  ArrowDownToLine,
+  RotateCcw,
   ArrowRight,
   CalendarDays,
   ChevronRight,
@@ -21,9 +23,15 @@ import { SplashScreen } from "./splash-screen";
 import { UsageChart } from "./usage-chart";
 import { Notifications } from "./notifications";
 import { MapExplorer } from "./map-explorer";
+import { UsageLimit } from "./usage-limit";
+import { getDailyUsage, getUsageLimitStatus } from "@/lib/usage-limits";
+import { BuildingUsage } from "./building-usage";
+import { ReportDownload } from "./report-download";
 import { HistoryResults } from "./history-results";
 import { monitoringRepository } from "@/lib/monitoring-repository";
 import { AdminView } from "./admin-view";
+import { CustomSelect } from "./custom-select";
+import { MobileBackButton } from "./mobile-back-button";
 import { ProfileView } from "./profile-view";
 import "./history.css";
 import { useMapSheet } from "./use-map-sheet";
@@ -39,15 +47,18 @@ const WellMap = dynamic(() => import("./well-map"), {
   ssr: false,
   loading: () => <div className="empty">Memuat peta…</div>,
 });
-type Tab = "dashboard" | "map" | "history" | "profile" | "locations" | "users";
+type Tab = "dashboard" | "map" | "history" | "profile" | "locations" | "users" | "manage";
 const tabs = [
   { id: "dashboard", label: "Beranda", icon: LayoutDashboard },
   { id: "map", label: "Peta", icon: MapPin },
   { id: "history", label: "Riwayat", icon: CalendarDays },
   { id: "profile", label: "Profil", icon: UserRound },
 ] as const;
-export default function Dashboard() {
-  const { user, role, demo } = useAuth();
+export default function Dashboard({ adminPreview = false }: { adminPreview?: boolean }) {
+  const { user, role: accountRole, demo: sessionDemo } = useAuth();
+  // Preview changes navigation only; AuthContext and server authorization stay unchanged.
+  const role = adminPreview ? "ADMIN" : accountRole;
+  const demo = adminPreview || sessionDemo;
   const [tab, setTab] = useState<Tab>("dashboard");
   const [data, setData] = useState<Snapshot | null>(null);
   const [error, setError] = useState("");
@@ -67,7 +78,7 @@ export default function Dashboard() {
   const [kind, setKind] = useState("all");
   const [detailPeriod, setDetailPeriod] = useState("hour");
   const [refreshing, setRefreshing] = useState(false);
-  const [clock, setClock] = useState(0);
+  const [clock, setClock] = useState(() => Date.now());
   useEffect(() => {
     const timer = setInterval(() => setClock(Date.now()), 60000);
     return () => clearInterval(timer);
@@ -105,7 +116,11 @@ export default function Dashboard() {
   async function refresh() {
     setRefreshing(true);
     try {
-      setData(await monitoringRepository.load(demo));
+      const incoming = await monitoringRepository.load(demo);
+      setData(old => adminPreview && old ? { ...incoming, locations: old.locations.map(w => {
+        const fresh = incoming.locations.find(item => item.id === w.id);
+        return { ...w, flow: fresh?.flow ?? w.flow, updatedAt: fresh?.updatedAt ?? w.updatedAt };
+      }) } : incoming);
       setError("");
     } catch {
       setError("Data gagal dimuat. Coba muat ulang.");
@@ -128,7 +143,7 @@ export default function Dashboard() {
         {error && <button onClick={refresh}>Coba lagi</button>}
       </main>
     );
-  const today = wibDate(new Date(data.generatedAt));
+  const today = wibDate(new Date(clock));
   const daily = selectReadings(data.readings, today, today);
   const buildingIds = new Set(
     data.locations
@@ -139,6 +154,7 @@ export default function Dashboard() {
   const total = buildingDaily.reduce((s, r) => s + r.liters, 0) / 1000;
   const well = data.locations.find((w) => w.id === selected);
   const wellDaily = daily.filter((r) => r.locationId === selected);
+  const exceededBuildings = data.locations.filter(w => w.type === "BUILDING" && w.active && getUsageLimitStatus(getDailyUsage(data, w.id, new Date(clock)).actual, w.dailyUsageLimit).status === "LIMIT_EXCEEDED").length;
   const activeLocations = data.locations.filter((w) => w.active);
   const online = activeLocations.filter((w) => w.flow !== null).length;
   const offline = activeLocations.filter(
@@ -172,41 +188,29 @@ export default function Dashboard() {
     setStart(from);
     setEnd(today);
   }
-  function download() {
-    const rows = [
-      "Periode WIB,Volume m3,Mode",
-      ...series.map((r) => `${r.key},${r.volume},DATA CONTOH`),
-    ];
-    const url = URL.createObjectURL(
-      new Blob([rows.join("\r\n")], { type: "text/csv;charset=utf-8" }),
-    );
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `contoh-air-${rangeStart}-${rangeEnd}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
   const selectWell = (id: string) => {
     resetDetail();
     setDetailPeriod("hour");
     setTab("map");
     setSelected(id);
   };
-  const navigation = (includeProfile = true) => (
+  const managementActive = tab === "manage" || tab === "locations" || tab === "users";
+  const mobileTabs = role === "ADMIN" ? [tabs[0], tabs[1], { id: "manage" as const, label: "Kelola", icon: SlidersHorizontal }, tabs[2], tabs[3]] : tabs;
+  const navigation = (includeProfile = true, mobile = false) => (
     <>
-      {tabs
+      {(mobile ? mobileTabs : tabs)
         .filter((t) => includeProfile || t.id !== "profile")
         .map((t) => (
           <button
             key={t.id}
-            className={tab === t.id ? "nav-item active" : "nav-item"}
+            className={(tab === t.id || (t.id === "manage" && managementActive)) ? "nav-item active" : "nav-item"}
             onClick={() => {
               setTab(t.id);
               setSelected("");
             }}
-            aria-current={tab === t.id ? "page" : undefined}
+            aria-current={(tab === t.id || (t.id === "manage" && managementActive)) ? "page" : undefined}
           >
-            <t.icon size={20} />
+            <t.icon size={20} aria-hidden="true" />
             <span>{t.label}</span>
           </button>
         ))}
@@ -235,7 +239,7 @@ export default function Dashboard() {
             <small>
               {w.type === "BUILDING" ? "Gedung" : "Sumur"} - {w.area}
               {w.type === "BUILDING"
-                ? ` - Pengguna: ${w.occupants ?? "Belum tersedia"}`
+                ? ` - Jumlah pegawai: ${w.occupants ?? "Belum tersedia"}`
                 : ""}
             </small>
           </span>
@@ -271,7 +275,7 @@ export default function Dashboard() {
 
         <nav>
           {role === "ADMIN" && <small>MONITORING</small>}
-          {navigation(role !== "ADMIN")}
+          {navigation(false)}
           {role === "ADMIN" && (
             <>
               <small>PENGELOLAAN</small>
@@ -289,29 +293,33 @@ export default function Dashboard() {
                 <UserRound size={20} />
                 Pengguna
               </button>
-              <button
-                className={`nav-item ${tab === "profile" ? "active" : ""}`}
-                onClick={() => setTab("profile")}
-              >
-                <UserRound size={20} />
-                Profil
-              </button>
             </>
           )}
         </nav>
 
-        <div className="sidebar-footer">
+        <button
+          type="button"
+          className="sidebar-footer"
+          aria-label="Profil"
+          aria-current={tab === "profile" ? "page" : undefined}
+          onClick={() => {
+            setTab("profile");
+            setSelected("");
+          }}
+        >
           <span className="avatar">
             {user ? (user.email?.[0] ?? "U").toUpperCase() : "D"}
           </span>
-          <div>
-            <strong>{user ? "Akun kampus" : "Pengunjung"}</strong>
-            <small>{user ? "Akses terverifikasi" : "Akses pratinjau"}</small>
-          </div>
-        </div>
+          <span className="sidebar-account-text">
+            <strong>{user?.user_metadata?.full_name || user?.email || (adminPreview ? "Admin Dummy" : "Pengunjung")}</strong>
+            <small>{user ? (role === "ADMIN" ? "Admin" : "Viewer") : "Akses pratinjau"}</small>
+          </span>
+          <ChevronRight size={16} aria-hidden="true" />
+        </button>
       </aside>
       <div className={`app-main ${tab === "map" ? "map-mode" : ""}`}>
-        <header className="topbar">
+        <header className={`topbar${role === "ADMIN" && (tab === "locations" || tab === "users") ? " admin-child-header" : ""}`}>
+          {role === "ADMIN" && (tab === "locations" || tab === "users") && <MobileBackButton onClick={() => setTab("manage")} />}
           <div>
             <h1>
               {tab === "dashboard"
@@ -320,6 +328,8 @@ export default function Dashboard() {
                   ? "Peta monitoring"
                   : tab === "history"
                     ? "Riwayat"
+                    : tab === "manage"
+                      ? "Kelola"
                     : tab === "locations"
                       ? "Kelola Titik Monitoring"
                       : tab === "users"
@@ -343,11 +353,12 @@ export default function Dashboard() {
             >
               <RefreshCw size={20} className={refreshing ? "spin" : ""} />
             </button>
-            <Notifications data={data} onSelect={selectWell} />
+            <Notifications data={data} onSelect={selectWell} now={clock} />
           </div>
         </header>
-        <main className="content">
-          <div className="data-context">
+        <main className={`content${tab === "history" ? " history-content" : ""}`}>
+          {adminPreview && tab !== "history" && <details className="admin-preview-note"><summary>Pratinjau - Data contoh</summary><p>Data simulasi, bukan data resmi UNNES. Perubahan hanya untuk sesi ini dan direset saat halaman dimuat ulang.</p></details>}
+          {tab !== "users" && !(role === "ADMIN" && (tab === "profile" || managementActive)) && <div className="data-context">
             <div className="data-meta">
               <details className="simulation-info">
                 <summary>
@@ -357,7 +368,7 @@ export default function Dashboard() {
                 </summary>
                 <p>
                   Angka dan koordinat adalah contoh, bukan data sumur asli
-                  UNNES. Pembaruan dilakukan manual.
+                  UNNES. Pembaruan dilakukan manual.{tab === "history" && " Data contoh tersedia hingga 730 hari terakhir."}
                 </p>
               </details>
               <p role="status">
@@ -381,9 +392,10 @@ export default function Dashboard() {
                 contoh untuk memuat ulang.
               </p>
             )}
-          </div>
+          </div>}
           {tab === "dashboard" && (
             <>
+              {exceededBuildings > 0 && <p className="notice">{exceededBuildings} gedung melebihi batas pemakaian harian.</p>}
               <section className="dashboard-hero">
                 <div className="hero-summary">
                   <Wifi size={20} />
@@ -534,51 +546,39 @@ export default function Dashboard() {
             <div className="history-view">
               <div className="history-intro">
                 <div>
-                  <h2>Riwayat penggunaan air</h2>
-                  <p>Pantau pemakaian berdasarkan titik dan periode pilihan.</p>
+                  <h2>Penggunaan air</h2>
+                  <p>Pantau penggunaan berdasarkan lokasi dan periode.</p>
                 </div>
-                <button
-                  className="secondary"
-                  disabled={invalid || !series.length}
-                  onClick={download}
-                >
-                  <ArrowDownToLine size={17} /> Unduh CSV
-                </button>
+                <ReportDownload disabled={invalid || !history.length} input={{readings:history,locations:data.locations,start:rangeStart,end:rangeEnd,period,kind,location:data.locations.find(w=>w.id===filter)?.name || "Semua titik",illustrative:demo}} />
               </div>
               <section className="panel filters">
-                <div className="periods">
-                  {[
-                    "Harian",
-                    "Mingguan",
-                    "Bulanan",
-                    "Tahunan",
-                    "Rentang tanggal",
-                  ].map((p) => (
-                    <button
-                      key={p}
-                      className={period === p ? "active" : ""}
-                      aria-pressed={period === p}
-                      onClick={() => changePeriod(p)}
-                    >
-                      {p}
-                    </button>
-                  ))}
-                </div>
                 <div className="date-fields">
+                  <label className="history-period">
+                    Periode
+                    <CustomSelect ariaLabel="Periode" value={period} onChange={changePeriod} options={["Harian", "Mingguan", "Bulanan", "Tahunan", "Rentang tanggal"].map(value => ({value, label: value}))} />
+                  </label>
                   <label>
                     Jenis titik
-                    <select
-                      aria-label="Jenis titik"
+                    <CustomSelect
+                      ariaLabel="Jenis titik"
                       value={kind}
-                      onChange={(e) => {
-                        setKind(e.target.value);
+                      onChange={(value) => {
+                        setKind(value);
                         setFilter("all");
                       }}
-                    >
-                      <option value="all">Semua</option>
-                      <option value="WELL">Sumur</option>
-                      <option value="BUILDING">Gedung</option>
-                    </select>
+                      options={[{ value: "all", label: "Semua" }, { value: "WELL", label: "Sumur" }, { value: "BUILDING", label: "Gedung" }]}
+                    />
+                  </label>
+                  <label>
+                    Lokasi titik
+                    <CustomSelect
+                      ariaLabel="Lokasi titik"
+                      value={filter}
+                      onChange={setFilter}
+                      options={[{ value: "all", label: "Semua titik" }, ...data.locations
+                        .filter((w) => kind === "all" || w.type === kind)
+                        .map((w) => ({ value: w.id, label: w.name }))]}
+                    />
                   </label>
                   <label>
                     Dari tanggal
@@ -602,25 +602,9 @@ export default function Dashboard() {
                       }}
                     />
                   </label>
-                  <label>
-                    Lokasi titik
-                    <select
-                      aria-label="Lokasi titik"
-                      value={filter}
-                      onChange={(e) => setFilter(e.target.value)}
-                    >
-                      <option value="all">Semua titik</option>
-                      {data.locations
-                        .filter((w) => kind === "all" || w.type === kind)
-                        .map((w) => (
-                          <option key={w.code} value={w.id}>
-                            {w.name}
-                          </option>
-                        ))}
-                    </select>
-                  </label>
                   <button
-                    className="secondary"
+                    className="secondary history-reset"
+                    aria-label="Reset filter"
                     onClick={() => {
                       setStart("");
                       setEnd("");
@@ -629,7 +613,7 @@ export default function Dashboard() {
                       setPeriod("Harian");
                     }}
                   >
-                    Reset filter
+                    <RotateCcw size={16} aria-hidden="true" /> Reset filter
                   </button>
                 </div>
                 {invalid && (
@@ -637,15 +621,21 @@ export default function Dashboard() {
                     Tanggal akhir harus sama atau setelah tanggal awal.
                   </p>
                 )}
-                <p>
-                  Harian: per jam · Mingguan: Senin–hari ini · Bulanan/tahunan:
-                  awal periode–hari ini. Data contoh tersedia hingga 730 hari
-                  terakhir.
+                <p className="history-help">
+                  {{
+                    Harian: "Menampilkan penggunaan per jam.",
+                    Mingguan: "Senin hingga hari ini, per hari.",
+                    Bulanan: "Awal bulan hingga hari ini, per hari.",
+                    Tahunan: "Awal tahun hingga hari ini, per bulan.",
+                    "Rentang tanggal": "Menampilkan rentang tanggal pilihan.",
+                  }[period]}
                 </p>
               </section>
               <HistoryResults
                 key={`${rangeStart}-${rangeEnd}-${filter}-${period}-${kind}`}
                 readings={history}
+                selectedLocation={data.locations.find(w => w.id === filter)}
+                illustrative={demo}
                 series={series}
                 location={
                   data.locations.find((w) => w.id === filter)?.name ||
@@ -660,25 +650,23 @@ export default function Dashboard() {
               />
             </div>
           )}
-          {tab === "profile" && (
-            <>
-              <ProfileView />
-              {role === "ADMIN" && (
-                <div className="periods">
-                  <button onClick={() => setTab("locations")}>
-                    Kelola Titik Monitoring
-                  </button>
-                  <button onClick={() => setTab("users")}>Pengguna</button>
-                </div>
-              )}
-            </>
-          )}
-          {role === "ADMIN" && (tab === "locations" || tab === "users") && (
-            <AdminView key={tab} page={tab} />
+          {tab === "profile" && <ProfileView adminPreview={adminPreview} />}
+          {role === "ADMIN" && tab === "manage" && <section className="management-hub" aria-label="Kelola">
+            <p>Kelola data dan akses TIRTA UNNES.</p>
+            <button onClick={() => setTab("locations")}><MapPin aria-hidden="true" /><span><strong>Titik Monitoring</strong><small>Kelola Sumur dan Gedung</small></span><ChevronRight size={18} aria-hidden="true" /></button>
+            <button onClick={() => setTab("users")}><Users aria-hidden="true" /><span><strong>Pengguna</strong><small>Kelola akun dan hak akses</small></span><ChevronRight size={18} aria-hidden="true" /></button>
+          </section>}
+          {(adminPreview || (!demo && role === "ADMIN")) && (tab === "locations" || tab === "users") && (
+            <AdminView key={tab} page={tab} snapshot={data} preview={adminPreview} onLocationsChange={() => void refresh()} onPreviewSave={row => setData(old => {
+              if (!old || !adminPreview) return old;
+              const existing = old.locations.find(w => w.id === row.id);
+              const location = { id: row.id, code: row.code, type: row.type, name: row.name, area: row.area, lat: row.latitude, lng: row.longitude, active: row.active, occupants: row.occupants, dailyUsageLimit: row.daily_usage_limit ?? null, limitNotificationEnabled: row.limit_notification_enabled ?? false, flow: existing?.flow ?? null, updatedAt: existing?.updatedAt ?? "" };
+              return { ...old, locations: existing ? old.locations.map(w => w.id === row.id ? location : w) : [...old.locations, location] };
+            })} />
           )}
         </main>
       </div>
-      <nav className="bottom-nav">{navigation()}</nav>
+      <nav className={`bottom-nav${role === "ADMIN" ? " admin-bottom-nav" : ""}`} aria-label="Navigasi utama">{navigation(true, true)}</nav>
       {well && (
         <div
           ref={detailContainerRef}
@@ -756,14 +744,14 @@ export default function Dashboard() {
                 <div>
                   <small>
                     {well.type === "BUILDING"
-                      ? "Debit air masuk"
-                      : "Debit air keluar"}
+                      ? "Debit masuk"
+                      : "Debit keluar"}
                   </small>
                   <h2>{well.flow === null ? "—" : number(well.flow)}</h2>
                   <p>L/menit</p>
                 </div>
                 <div>
-                  <small>Volume hari ini</small>
+                  <small>{well.type === "BUILDING" ? "Pemakaian hari ini" : "Produksi air hari ini"}</small>
                   <h2>
                     {wellDaily.length
                       ? number(
@@ -774,6 +762,8 @@ export default function Dashboard() {
                   <p>m³</p>
                 </div>
               </div>
+              {well.type === "BUILDING" && <UsageLimit actual={getDailyUsage(data, well.id, new Date(clock)).actual} limit={well.dailyUsageLimit} enabled={well.limitNotificationEnabled} illustrative={demo} />}
+              <BuildingUsage location={well} volumeM3={wellDaily.length ? wellDaily.reduce((sum, reading) => sum + reading.liters, 0) / 1000 : null} illustrative={demo} />
               {well.flow === null && (
                 <p className="notice">
                   Debit tidak tersedia saat terputus. Volume hanya mencakup
@@ -792,12 +782,6 @@ export default function Dashboard() {
                     <dt>Jenis titik</dt>
                     <dd>{well.type === "BUILDING" ? "Gedung" : "Sumur"}</dd>
                   </div>
-                  {well.type === "BUILDING" && (
-                    <div>
-                      <dt>Pegawai / pengguna</dt>
-                      <dd>{well.occupants ?? "Belum tersedia"}</dd>
-                    </div>
-                  )}
                   <div>
                     <dt>Kode titik</dt>
                     <dd>{well.code}</dd>

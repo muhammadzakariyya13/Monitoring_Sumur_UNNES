@@ -36,11 +36,13 @@ test("Login guard, demo, peta, detail, laporan dan keluar", async ({
   await page.locator(".leaflet-interactive").first().click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.getByRole("button", { name: "Lihat riwayat titik" }).click();
-  await page.getByRole("button", { name: "Tahunan", exact: true }).click();
+  await page.getByRole("combobox", { name: "Periode", exact: true }).click();
+    await page.getByRole("option", { name: "Tahunan", exact: true }).click();
   await expect(page.locator("tbody tr").first()).toBeVisible();
   const download = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Unduh CSV" }).click();
-  expect((await download).suggestedFilename()).toContain("contoh-air-");
+  await page.getByRole("button", { name: "Unduh Laporan" }).click();
+    await page.getByRole("button", {name: "CSV (.csv) - Data mentah", exact:true}).click();
+  expect((await download).suggestedFilename()).toContain("TIRTA_UNNES_Laporan_Air_");
   await page.getByLabel("Dari tanggal").fill("2030-01-01");
   await expect(page.locator('p[role="alert"]')).toContainText("Tanggal akhir");
   await page

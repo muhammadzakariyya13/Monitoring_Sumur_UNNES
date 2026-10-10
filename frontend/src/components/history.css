@@ -3,12 +3,9 @@
 .history-intro p { margin-top: 6px; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .history-intro button { flex-shrink: 0; border-radius: 12px; min-height: 44px; }
 .history-view .filters { border-radius: 18px; margin-bottom: 18px; }
-.history-view .periods { width: 100%; background: #f4f7fa; border-radius: 12px; }
-.history-view .periods button { flex: 1; border-radius: 9px; }
-.history-view .periods button.active { background: var(--navy); color: white; }
 .history-view .date-fields { display: grid; grid-template-columns: 1fr 1fr 1.3fr auto; align-items: end; gap: 14px; }
 .history-view .date-fields label { min-width: 0; font-size: 12px; }
-.history-view .date-fields input, .history-view .date-fields select { width: 100%; min-width: 0; min-height: 44px; border-radius: 10px; background: #f9fbfd; }
+.history-view .date-fields input { width: 100%; min-width: 0; min-height: 44px; border-radius: 9px; background: #fff; }
 .history-view .filters > p { font-size: 11px; line-height: 1.7; margin-top: 14px; color: var(--muted); }
 .history-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
 .history-kpis article { padding: 18px; background: white; border: 1px solid var(--border); border-radius: 16px; }
@@ -39,19 +36,32 @@
  .history-view .date-fields { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 640px) {
- .history-intro { align-items: flex-start; flex-wrap: wrap; }
- .history-intro h2 { font-size: 20px; }
- .history-intro p { font-size: 12px; }
- .history-intro button { width: 100%; }
- .history-view .filters { padding: 14px; }
- .history-view .periods { flex-wrap: nowrap; overflow-x: auto; }
- .history-view .periods button { flex: 0 0 auto; font-size: 12px; }
- .history-view .date-fields { gap: 12px; }
- .history-view .date-fields input, .history-view .date-fields select { font-size: 16px; }
- .history-view .date-fields label:nth-child(3) { grid-column: 1 / -1; }
- .history-kpis { gap: 10px; }
- .history-kpis article { padding: 14px; }
- .history-kpis strong { font-size: 23px; }
+ .history-content .data-context { margin-bottom: 10px; }
+ .history-content .data-meta { gap: 4px; margin-bottom: 0; }
+ .history-content .data-meta > p { padding-top: 0; }
+ .history-content .simulation-info summary { padding: 8px 0; }
+ .history-intro { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; margin-bottom: 12px; }
+ .history-intro > div { display: contents; }
+ .history-intro h2 { font-size: 18px; line-height: 1.4; }
+ .history-intro p { grid-column: 1 / -1; grid-row: 2; margin: 0; font-size: 12px; }
+ .history-intro button { grid-column: 2; grid-row: 1; width: auto; padding: 0 10px; gap: 5px; font-size: 12px; }
+ .history-download-label, .history-reset-label { display: none; }
+ .history-view .filters { padding: 0 0 10px; margin-bottom: 12px; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; background: transparent; box-shadow: none; }
+ .history-view .date-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; margin-top: 10px; }
+ .history-view .date-fields label { gap: 5px; }
+ .history-view .date-fields input { font-size: 16px; padding: 8px 6px; max-width: 100%; height: 44px; }
+ .history-view .date-fields input[type="date"] { appearance: none; }
+ .history-view .date-fields input[type="date"]::-webkit-date-and-time-value { text-align: left; min-width: 0; }
+ .history-view .date-fields .history-reset { grid-column: 2; justify-self: end; width: auto; min-height: 44px; padding: 0 8px; border: 0; background: transparent; box-shadow: none; font-size: 12px; }
+ .history-view .filters > .history-help { margin-top: 0; font-size: 11px; line-height: 1.5; }
+ .history-help span { display: block; }
+ .history-kpis { gap: 0; background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
+ .history-kpis article { padding: 12px; border: 0; border-radius: 0; min-width: 0; }
+ .history-kpis article:nth-child(even) { border-left: 1px solid var(--border); }
+ .history-kpis article:nth-child(n+3) { border-top: 1px solid var(--border); }
+ .history-kpi-icon { display: none; }
+ .history-kpis p { margin-top: 0; font-size: 11px; }
+ .history-kpis strong { font-size: 22px; margin: 4px 0; overflow-wrap: anywhere; }
  .history-kpis strong small { font-size: 10px; }
  .history-kpis article > small { font-size: 10px; }
  .history-toolbar { padding: 12px; }
@@ -64,3 +74,60 @@
  .history-records td::before { content: attr(data-label); color: var(--muted); text-align: left; margin-right: auto; }
  .history-pagination { padding: 12px; flex-wrap: wrap; }
 }
+
+/* History-only layout; shared detail period controls are unchanged. */
+.history-view { max-width: 1240px; margin-inline: auto; }
+.history-view .history-intro h2 { font-size: 20px; }
+.history-view .filters { padding: 18px; border: 1px solid var(--border); background: white; border-radius: 14px; }
+.history-view .date-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0; }
+.history-view .date-fields label { display: grid; gap: 7px; font-size: 12px; font-weight: 500; color: #526980; }
+.history-view .date-fields input, .history-view .date-fields button[role="combobox"] { height: 46px; font-size: 16px; border-radius: 10px; }
+.history-view .date-fields .history-reset { justify-self: end; align-self: end; min-height: 44px; border: 0; background: transparent; font-size: 12px; padding: 8px; }
+.history-view .history-reset-label { display: inline; }
+.history-view .filters > .history-help { margin: 12px 0 0; font-size: 11px; color: #526980; }
+.history-summary-heading { font-size: 16px; margin: 20px 0 12px; }
+.history-kpis { gap: 0; background: white; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.history-kpis article { border: 0; border-radius: 0; padding: 16px; min-width: 0; }
+.history-kpis article + article { border-left: 1px solid var(--border); }
+.history-kpi-icon { display: none; }
+.history-kpis p { margin-top: 0; font-size: 12px; color: #526980; }
+.history-kpis strong { font-size: 24px; line-height: 1.5; margin: 4px 0; }
+.history-kpis strong small { font-size: 11px; white-space: nowrap; }
+.history-kpis article > small { font-size: 11px; color: #526980; }
+.history-view .panel-heading h2 { font-size: 17px; }
+.history-view .panel-heading p { font-size: 12px; line-height: 1.6; }
+.history-view .tag { overflow-wrap: anywhere; }
+.history-records td { overflow-wrap: anywhere; }
+.history-view button:focus-visible, .history-view input:focus-visible { outline: 2px solid #147fa9; outline-offset: 2px; }
+.history-view .recharts-tooltip-wrapper { max-width: 230px; font-size: 12px; }
+@media (max-width: 1100px) {
+ .history-kpis article:nth-child(3) { border-left: 0; }
+ .history-kpis article:nth-child(n+3) { border-top: 1px solid var(--border); }
+ .history-view .date-fields { grid-template-columns: repeat(2,minmax(0,1fr)); }
+ .history-view .history-period { grid-column: 1 / -1; }
+ .history-view .date-fields .history-reset { grid-column: 1 / -1; }
+}
+@media (max-width: 640px) {
+ .history-view .filters { padding: 14px; }
+ .history-view .date-fields { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+ .history-view .date-fields input { padding-inline: 8px; }
+ .history-view .history-intro h2 { font-size: 18px; }
+ .history-view .history-intro p { font-size: 12px; }
+ .history-view .history-reset-label { display: inline; }
+ .history-chart .chart { height: 220px; margin: 8px 0; }
+ .history-view .panel-heading { padding: 16px; }
+ .history-view .panel-heading .tag { font-size: 11px; }
+ .history-records tr { background: white; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; padding: 10px 0; margin: 0; }
+ .history-records td { font-size: 12px; line-height: 1.6; }
+ .history-records td:last-child { display: none; }
+ .history-records caption { font-size: 11px; line-height: 1.6; padding: 12px; }
+ .history-kpis article { padding: 14px; }
+ .history-kpis strong { font-size: 23px; }
+}
+@media (max-width: 390px) {
+ .history-view .date-fields { grid-template-columns: minmax(0,1fr); }
+}
+
+.history-view .date-fields .history-reset { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); border-radius: 9px; padding: 8px 12px; background: white; font-weight: 500; }
+
+@media (max-width:640px) { .history-view .history-intro > div:last-child { display: block; } }
