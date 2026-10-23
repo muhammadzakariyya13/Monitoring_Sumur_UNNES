@@ -43,10 +43,10 @@
   position: absolute;
   right: 0;
   width: 240px;
-  background: white;
-  color: #a33;
+  background: var(--ui-surface);
+  color: var(--ui-danger);
   padding: 10px;
-  border: 1px solid #dce5ed;
+  border: 1px solid var(--ui-border);
   z-index: 65;
   font-size: 12px;
 }
@@ -67,3 +67,7 @@
     font-size: 11px;
   }
 }
+
+:global(html[data-theme="dark"]) .options { background: var(--ui-elevated); color: var(--ui-text); border-color: var(--ui-border); }
+:global(html[data-theme="dark"]) .options button { background: transparent; color: var(--ui-text); }
+:global(html[data-theme="dark"]) .options button:hover { background: var(--ui-soft); }

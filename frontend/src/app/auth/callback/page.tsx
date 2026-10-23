@@ -1,9 +1,11 @@
 "use client";
+import { useUiCopy } from "@/components/use-ui-copy";
 import { useEffect, useState } from "react";
 import { Brand } from "@/components/auth";
 import { domainMessage, supabase } from "@/lib/supabase";
 let exchange: Promise<unknown> | undefined;
 export default function Callback() {
+  const { localize } = useUiCopy();
   const [error, setError] = useState("");
   useEffect(() => {
     async function complete() {
@@ -34,7 +36,7 @@ export default function Callback() {
     exchange ??= complete();
     exchange.catch((e: Error) => setError(e.message));
   }, []);
-  return (
+  return localize(
     <main className="splash">
       <Brand />
       <h1>{error ? "Belum berhasil masuk" : "Memverifikasi akun…"}</h1>

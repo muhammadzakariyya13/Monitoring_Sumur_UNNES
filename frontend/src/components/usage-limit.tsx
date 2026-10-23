@@ -1,4 +1,5 @@
-import { number } from "@/lib/data";
+"use client";
+import { useUiCopy } from "./use-ui-copy";
 import { getUsageLimitStatus } from "@/lib/usage-limits";
 import styles from "./usage-limit.module.css";
 
@@ -13,10 +14,11 @@ export function UsageLimit({
   enabled?: boolean;
   illustrative?: boolean;
 }) {
+  const { localize, number } = useUiCopy();
   const result = getUsageLimitStatus(actual, limit);
   const hasUsage =
     result.status === "NORMAL" || result.status === "LIMIT_EXCEEDED";
-  return (
+  return localize(
     <section className={styles.summary} aria-label="Batas pemakaian Gedung">
       <div className={styles.heading}>
         <strong>Batas pemakaian harian</strong>

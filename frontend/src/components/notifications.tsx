@@ -1,9 +1,10 @@
 "use client";
+import { useUiCopy } from "./use-ui-copy";
 import { useEffect, useRef, useState } from "react";
 import { Bell, WifiOff, TriangleAlert } from "lucide-react";
 import type { Snapshot } from "@/lib/data";
 import { getLimitAlerts } from "@/lib/usage-limits";
-import { number, wibTime } from "@/lib/data";
+import { wibTime } from "@/lib/data";
 import styles from "./notifications.module.css";
 
 export function Notifications({
@@ -15,6 +16,7 @@ export function Notifications({
   now?: number;
   onSelect: (id: string) => void;
 }) {
+  const { localize, number } = useUiCopy();
   const [open, setOpen] = useState(false);
   const [read, setRead] = useState<string[]>([]);
   const container = useRef<HTMLDivElement>(null);
@@ -62,7 +64,7 @@ export function Notifications({
       document.removeEventListener("keydown", escape);
     };
   }, [open]);
-  return (
+  return localize(
     <div className={styles.root} ref={container}>
       <button
         ref={trigger}

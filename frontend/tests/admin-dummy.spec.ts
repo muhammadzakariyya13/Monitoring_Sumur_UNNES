@@ -11,7 +11,7 @@ for (const width of [360, 1440]) {
     });
     const openManagement = async (name: string) => {
       if (width <= 640) await page.locator(".bottom-nav").getByRole("button", { name: "Kelola", exact: true }).click();
-      await page.locator(width <= 640 ? ".content" : ".sidebar").getByRole("button", { name: width <= 640 ? (name === "Pengguna" ? "Pengguna Kelola akun dan hak akses" : "Titik Monitoring Kelola Sumur dan Gedung") : name, exact: true }).click();
+      await page.locator(width <= 640 ? ".content" : ".sidebar").getByRole("button", { name: width <= 640 ? (name === "Pengguna" ? "Pengguna Kelola akun dan hak akses" : "Titik Monitoring Kelola sumur dan gedung") : name, exact: true }).click();
     };
     await page.goto("/demo/admin/");
     await openManagement("Pengguna");

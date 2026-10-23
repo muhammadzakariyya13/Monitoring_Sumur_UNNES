@@ -1,4 +1,5 @@
 "use client";
+import { useUiCopy } from "./use-ui-copy";
 import { useEffect, useRef, useState } from "react";
 import { Download, LoaderCircle } from "lucide-react";
 import { createReport, type ReportInput } from "@/lib/history-report";
@@ -10,6 +11,7 @@ export function ReportDownload({
   input: ReportInput;
   disabled: boolean;
 }) {
+  const { localize } = useUiCopy();
   const [open, setOpen] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
@@ -56,7 +58,7 @@ export function ReportDownload({
       trigger.current?.focus();
     }
   }
-  return (
+  return localize(
     <div
       className={styles.root}
       ref={root}

@@ -109,7 +109,7 @@ for (const width of [390, 1440])
       await page.getByRole("button", { name: label, exact: true }).click();
       const file = await download;
       expect(file.suggestedFilename()).toMatch(
-        new RegExp(`TIRTA_UNNES_Laporan_Air_.*\\.${extension}$`),
+        new RegExp(`SIMARA_Laporan_Air_.*\\.${extension}$`),
       );
       const bytes = await readFile((await file.path())!);
       expect(bytes.length).toBeGreaterThan(100);

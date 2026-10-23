@@ -6,7 +6,7 @@ for (const width of [360, 390, 430, 768, 1366, 1440, 1920]) {
     page.on("pageerror", e => errors.push(e.message));
     await page.goto("/demo/admin/");
     if (width <= 640) await page.locator(".bottom-nav").getByRole("button", { name: "Kelola", exact: true }).click();
-    await page.locator(width <= 640 ? ".content" : ".sidebar").getByRole("button", { name: width <= 640 ? "Titik Monitoring Kelola Sumur dan Gedung" : "Kelola Titik Monitoring" }).click();
+    await page.locator(width <= 640 ? ".content" : ".sidebar").getByRole("button", { name: width <= 640 ? "Titik Monitoring Kelola sumur dan gedung" : "Kelola Titik Monitoring" }).click();
     const card = page.getByRole("article", { name: "Gedung Rektorat", exact: true });
     await expect(card).toBeVisible();
     const columns = await card.evaluate(element => getComputedStyle(element.parentElement!).gridTemplateColumns.split(" ").length);

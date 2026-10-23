@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { selectDate } from "./date-picker-helper";
 
 for (const width of [360, 375, 390, 400, 430, 768, 1024, 1366, 1440, 1920]) {
   test(`Riwayat ${width}px: periode, tanggal, CSV dan batas layar`, async ({
@@ -40,9 +41,9 @@ for (const width of [360, 375, 390, 400, 430, 768, 1024, 1366, 1440, 1920]) {
     await page
       .getByRole("option", { name: "Sumur Rektorat", exact: true })
       .click();
-    const end = await page.getByLabel("Sampai tanggal").inputValue();
-    await page.getByLabel("Dari tanggal").fill(end);
-    await page.getByLabel("Sampai tanggal").fill(end);
+    const end = (await page.getByRole("button", { name: "Sampai tanggal", exact: true }).getAttribute("data-value"))!;
+    await selectDate(page, "Dari tanggal", end);
+    await selectDate(page, "Sampai tanggal", end);
     await expect(page.getByRole("combobox", { name: "Periode", exact: true })).toHaveText("Rentang tanggal");
     for (const label of [
       "Jenis titik",
@@ -51,7 +52,7 @@ for (const width of [360, 375, 390, 400, 430, 768, 1024, 1366, 1440, 1920]) {
       "Sampai tanggal",
     ]) {
       const bounds = await page
-        .getByLabel(label, { exact: true })
+        .getByRole(label.includes("tanggal") ? "button" : "combobox", { name: label, exact: true })
         .boundingBox();
       expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
       expect(bounds!.height).toBeGreaterThanOrEqual(44);
@@ -59,7 +60,7 @@ for (const width of [360, 375, 390, 400, 430, 768, 1024, 1366, 1440, 1920]) {
     const download = page.waitForEvent("download");
     await page.getByRole("button", { name: "Unduh Laporan" }).click();
     await page.getByRole("button", {name: "CSV (.csv) - Data mentah", exact:true}).click();
-    expect((await download).suggestedFilename()).toContain("TIRTA_UNNES_Laporan_Air_");
+    expect((await download).suggestedFilename()).toContain("SIMARA_Laporan_Air_");
     await page.getByRole("button", { name: "Reset filter" }).click();
     await expect(page.getByLabel("Jenis titik", { exact: true })).toHaveText(
       "Semua",
@@ -107,8 +108,8 @@ test("Riwayat: filter sumur, pagination, pencarian, dan reset", async ({
     .locator(".sidebar")
     .getByRole("button", { name: "Riwayat", exact: true })
     .click();
-  await page.getByLabel("Dari tanggal").fill("2026-09-01");
-  await page.getByLabel("Sampai tanggal").fill("2026-09-16");
+  await selectDate(page, "Dari tanggal", "2026-09-01");
+  await selectDate(page, "Sampai tanggal", "2026-09-16");
   await page.getByLabel("Lokasi titik", { exact: true }).click();
   await page
     .getByRole("option", { name: "Sumur Rektorat", exact: true })
@@ -146,8 +147,8 @@ test("Admin and Viewer share history filters and date validation", async ({ page
     const period=page.getByRole('combobox',{name:'Periode',exact:true});
     await period.focus(); await page.keyboard.press('ArrowDown'); await page.keyboard.press('End'); await page.keyboard.press('Enter');
     await expect(period).toHaveText('Rentang tanggal');
-    await page.getByLabel('Dari tanggal').fill('2026-10-08');
-    await page.getByLabel('Sampai tanggal').fill('2026-10-01');
+    await selectDate(page, 'Dari tanggal', '2026-10-08');
+    await selectDate(page, 'Sampai tanggal', '2026-10-01');
     await expect(page.locator('.history-view').getByRole('alert')).toContainText('Tanggal akhir');
     await expect(page.getByRole('button',{name:'Unduh Laporan'})).toBeDisabled();
     await page.getByRole('button',{name:'Reset filter'}).click();

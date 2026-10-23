@@ -224,3 +224,29 @@
 }
 
 @media (max-width: 640px) { .row[data-own="true"] .actions { display: none; } }
+
+@media (max-width: 640px) {
+  .header p { font-size: 13px; line-height: 1.7; }
+  .buttons button:last-child { font-size: 13px; border-radius: 12px; }
+  .row { grid-template-columns: minmax(0, 1fr) 112px; border-color: var(--ui-border); border-radius: 16px; box-shadow: none; padding: 16px; gap: 12px; }
+  .identity { grid-column: 1 / -1; grid-template-columns: 38px minmax(0, 1fr); gap: 3px 10px; }
+  .identity .avatar { width: 38px; height: 38px; background: var(--ui-accent-surface); color: var(--ui-accent); font-size: 14px; }
+  .identity strong { font-size: 14px; line-height: 1.6; }
+  .identity span, .identity small { font-size: 12px; line-height: 1.6; }
+  .row > button[role="combobox"] { grid-column: 2; grid-row: 2; width: 100%; min-height: 44px; font-size: 14px; border-radius: 12px; }
+  .status { grid-column: 1; grid-row: 2; margin-left: 0; font-size: 12px; line-height: 1.6; align-self: center; }
+  .actions { border-top-color: var(--ui-border); padding-top: 8px; }
+  .actions button { min-height: 44px; font-size: 13px; border-radius: 10px; }
+  .feedback { border-color: #e8eef6; border-radius: 14px; font-size: 13px; }
+  .dialog { width: calc(100% - 32px); padding: 18px; border-radius: 20px; max-height: calc(100dvh - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); }
+  .dialog h2 { font-size: 18px; line-height: 1.5; }
+  .dialog input { font-size: 16px; min-height: 46px; border-radius: 12px; }
+  .dialog footer button { min-height: 44px; font-size: 13px; border-radius: 12px; }
+}
+
+:global(html[data-theme="dark"]) :is(.row, .list, .dialog, .dialog footer, .feedback) { background: var(--ui-surface); color: var(--ui-text); border-color: var(--ui-border); }
+:global(html[data-theme="dark"]) :is(.identity strong, .dialog h2) { color: var(--ui-text); }
+:global(html[data-theme="dark"]) :is(.identity span, .identity small, .status, .header p, .dialog p, .dialog label) { color: var(--ui-muted); }
+:global(html[data-theme="dark"]) :is(.columns, .dialog input, .dialog header > button) { background: var(--ui-elevated); color: var(--ui-text); border-color: var(--ui-border); }
+:global(html[data-theme="dark"]) .actions { border-color: var(--ui-border); }
+:global(html[data-theme="dark"]) .destructive { color: var(--ui-danger); background: var(--ui-danger-surface); border-color: var(--ui-border); }

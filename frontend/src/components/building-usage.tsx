@@ -1,4 +1,6 @@
-import { litersPerPerson, number, type MonitoringLocation } from "@/lib/data";
+"use client";
+import { litersPerPerson, type MonitoringLocation } from "@/lib/data";
+import { useUiCopy } from "./use-ui-copy";
 import styles from "./building-usage.module.css";
 
 export function BuildingUsage({
@@ -12,10 +14,11 @@ export function BuildingUsage({
   history?: boolean;
   illustrative?: boolean;
 }) {
+  const { localize, number } = useUiCopy();
   if (location.type !== "BUILDING") return null;
   const average = litersPerPerson(volumeM3, location.occupants);
   const headcount = location.occupants;
-  return (
+  return localize(
     <section className={styles.summary} aria-label="Pemakaian per orang Gedung">
       <dl>
         <div>

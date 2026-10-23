@@ -24,8 +24,8 @@
   line-height: 1.7;
 }
 .warning {
-  color: var(--navy);
-  background: #fff5df;
+  color: var(--ui-warning);
+  background: var(--ui-warning-surface);
   border-left: 3px solid #f5c842;
   padding: 3px 7px;
   border-radius: 4px;
@@ -38,10 +38,10 @@
   border-radius: 8px;
   overflow: hidden;
   accent-color: var(--blue);
-  background: #e5ebf0;
+  background: var(--ui-border);
 }
 .summary progress::-webkit-progress-bar {
-  background: #e5ebf0;
+  background: var(--ui-border);
 }
 .summary progress::-webkit-progress-value {
   background: #147fa9;
@@ -98,3 +98,7 @@
 .actions button {
   min-height: 44px;
 }
+
+:global(html[data-theme="dark"]) .summary { background: var(--ui-surface); color: var(--ui-text); border-color: var(--ui-border); }
+:global(html[data-theme="dark"]) .summary small { color: var(--ui-muted); }
+:global(html[data-theme="dark"]) .warning { color: var(--ui-warning); }

@@ -1,9 +1,11 @@
 "use client";
+import { useUiCopy } from "@/components/use-ui-copy";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { isUnnesEmail, supabase } from "@/lib/supabase";
 import styles from "../../login/login.module.css";
 
 export default function AcceptInvite() {
+  const { localize } = useUiCopy();
   const token = useRef("");
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -70,12 +72,12 @@ export default function AcceptInvite() {
       setBusy(false);
     }
   }
-  return (
+  return localize(
     <main className={styles.page}>
       <section className={styles.panel}>
         <div className={styles.content}>
           <div className={styles.heading}>
-            <h1>Undangan TIRTA UNNES</h1>
+            <h1>Undangan SIMARA</h1>
             <p>
               {done
                 ? "Password tersimpan. Akun Anda siap digunakan."

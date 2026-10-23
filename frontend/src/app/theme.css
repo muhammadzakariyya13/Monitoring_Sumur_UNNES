@@ -1,0 +1,80 @@
+:root {
+  color-scheme: light;
+  --ui-background: #f0f5fb;
+  --ui-surface: #fff;
+  --ui-elevated: #f7faff;
+  --ui-text: #20384e;
+  --ui-muted: #586d7e;
+  --ui-border: #e5ebf0;
+  --ui-soft: #edf4f8;
+  --ui-accent: #147fa9;
+  --ui-danger: #b53333;
+  --ui-warning: #85601a;
+  --ui-warning-surface: #fffbeb;
+  --ui-danger-surface: #fff4f4;
+  --ui-success: #15735c;
+  --ui-success-surface: #eaf8f1;
+  --ui-accent-surface: #ecf5f9;
+  --ui-overlay: #fffffff2;
+  --ui-input: #fafcfe;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --ui-background: #0b1726;
+  --ui-surface: #14283f;
+  --ui-elevated: #1b344f;
+  --ui-soft: #1b344f;
+  --ui-border: #29445f;
+  --ui-text: #f3f7fc;
+  --ui-muted: #afc4d8;
+  --ui-accent: #75c5ff;
+  --ui-danger: #ffb0b0;
+  --ui-warning: #f3c96d;
+  --ui-warning-surface: #3b3221;
+  --ui-danger-surface: #422c38;
+  --ui-success: #70dbb6;
+  --ui-success-surface: #173d38;
+  --ui-accent-surface: #1b3a51;
+  --ui-overlay: #14283ff2;
+  --ui-input: #14283f;
+  --background: var(--ui-background);
+  --ink: var(--ui-text);
+  --muted: var(--ui-muted);
+  --border: var(--ui-border);
+}
+/* Shared global classes are explicit. CSS Modules define their own themed surfaces. */
+html[data-theme="dark"] :is(body, .app-shell, .app-main) { background-color: var(--ui-background); color: var(--ui-text); }
+html[data-theme="dark"] :is(.panel, .stat, .history-view .filters, .history-kpis article, .history-records tr, .detail-panel, .management-hub > button) { background: var(--ui-surface); color: var(--ui-text); border-color: var(--ui-border); }
+html[data-theme="dark"] :is(.topbar, .history-records th) { background: var(--ui-elevated); border-color: var(--ui-border); }
+html[data-theme="dark"] :is(h1, h2, h3, .history-kpis strong, .history-view .history-intro h2, .history-records td) { color: var(--ui-text); }
+html[data-theme="dark"] :is(.data-meta, .panel-heading p, .history-intro p, .history-kpis p, .history-kpis article > small, .history-kpis strong small, .history-view .date-fields label, .history-view .history-help, .history-pagination, .history-toolbar, .connection-status, .map-help, .well-name small) { color: var(--ui-muted); }
+html[data-theme="dark"] :is(input:not([type="checkbox"]):not([type="search"]), select, textarea) { color-scheme: dark; background: var(--ui-surface); color: var(--ui-text); border-color: var(--ui-border); }
+html[data-theme="dark"] :is(.secondary, .icon-button, .history-pagination button, .history-view .history-reset) { background: var(--ui-elevated); color: var(--ui-text); border-color: var(--ui-border); }
+html[data-theme="dark"] .primary { background: #06539f; color: #fff; border-color: #06539f; }
+html[data-theme="dark"] .history-toolbar label { background: var(--ui-elevated); border-color: var(--ui-border); }
+html[data-theme="dark"] :is(.history-records th, .history-records caption) { color: var(--ui-muted); }
+html[data-theme="dark"] .home-content .dashboard-hero { --hero-muted: #c8e1f4; --hero-divider: #ffffff26; background: linear-gradient(110deg, #0a3159, #06539f); border-color: var(--ui-border); }
+html[data-theme="dark"] .home-content .dashboard-hero .featured { background: transparent; }
+html[data-theme="dark"] .home-content .featured :is(h2, div, p, small),
+html[data-theme="dark"] .home-content .hero-summary { color: #f3f7fc; }
+html[data-theme="dark"] .home-content .connection-secondary { color: #c8e1f4; }
+html[data-theme="dark"] .home-content .quick-stats .stat { background: var(--ui-surface); border-color: var(--ui-border); }
+html[data-theme="dark"] .home-content .quick-stats .stat :is(div, p, small) { color: var(--ui-muted); }
+html[data-theme="dark"] .history-view .filters { background: var(--ui-surface); border-color: var(--ui-border); }
+html[data-theme="dark"] .history-view .date-fields input { background: var(--ui-elevated); color: var(--ui-text); border-color: var(--ui-border); }
+html[data-theme="dark"] .history-kpis :is(article, article + article, article:nth-child(n+3)) { background: var(--ui-surface); border-color: var(--ui-border); }
+html[data-theme="dark"] .history-records tbody tr { background: var(--ui-surface); border-color: var(--ui-border); }
+html[data-theme="dark"] .recharts-text { fill: var(--ui-muted); }
+html[data-theme="dark"] .recharts-cartesian-grid line { stroke: var(--ui-border); }
+.recharts-default-tooltip { background-color: var(--ui-elevated) !important; border-color: var(--ui-border) !important; color: var(--ui-text); }
+.recharts-tooltip-label { color: var(--ui-text); }
+html[data-theme="dark"] .leaflet-control-zoom a { background: var(--ui-elevated); color: var(--ui-text); }
+html[data-theme="dark"] .leaflet-control-zoom a:hover { background: var(--ui-soft); }
+html[data-theme="dark"] :is(.leaflet-tooltip, .leaflet-control-attribution) { background: var(--ui-overlay); color: var(--ui-text); border-color: var(--ui-border); }
+html[data-theme="dark"] .leaflet-tooltip-top::before { border-top-color: var(--ui-border); }
+html[data-theme="dark"] .leaflet-control-attribution a { color: var(--ui-accent); }
+html[data-theme="dark"] .notice { background: var(--ui-warning-surface); color: var(--ui-warning); border-color: var(--ui-border); }
+@media (max-width: 640px) {
+  html[data-theme="dark"] :is(.mobile-dashboard, .mobile-secondary, .map-mode, .admin-shell) .topbar { background: linear-gradient(90deg, #0a3159, #06539f); }
+}
+/* OpenStreetMap tiles and attribution are kept intact, without color filters. */

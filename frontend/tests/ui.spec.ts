@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { selectDate } from "./date-picker-helper";
 test("Login guard, demo, peta, detail, laporan dan keluar", async ({
   page,
 }) => {
@@ -42,8 +43,8 @@ test("Login guard, demo, peta, detail, laporan dan keluar", async ({
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Unduh Laporan" }).click();
     await page.getByRole("button", {name: "CSV (.csv) - Data mentah", exact:true}).click();
-  expect((await download).suggestedFilename()).toContain("TIRTA_UNNES_Laporan_Air_");
-  await page.getByLabel("Dari tanggal").fill("2030-01-01");
+  expect((await download).suggestedFilename()).toContain("SIMARA_Laporan_Air_");
+  await selectDate(page, "Dari tanggal", "2030-01-01");
   await expect(page.locator('p[role="alert"]')).toContainText("Tanggal akhir");
   await page
     .locator(".sidebar")

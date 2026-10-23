@@ -17,9 +17,6 @@
 .listHeader { padding: 20px 18px 16px; border-bottom: 1px solid var(--border); }
 .listHeader h3 { font-size: 15px; }
 .sheetTitle p { margin-top: 5px; color: var(--muted); font-size: 12px; }
-.search { display: flex; align-items: center; gap: 8px; padding: 8px 10px; margin-top: 16px; background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; color: var(--muted); }
-.search:focus-within { outline: 2px solid #147fa9; outline-offset: 2px; }
-.search input { width: 100%; min-width: 0; min-height: 28px; background: transparent; border: 0; outline: none; font-size: 13px; color: var(--navy); }
 .filters { display: flex; gap: 6px; margin-top: 12px; }
 .filters button { flex: 1; min-height: 44px; padding: 6px; border: 1px solid var(--border); border-radius: 9px; background: white; color: var(--muted); font-size: 12px; }
 .filters button[aria-pressed="true"] { background: var(--navy); color: white; border-color: var(--navy); }
@@ -84,12 +81,10 @@
   .sheetHandle, .sheetTitle { touch-action: none; user-select: none; cursor: grab; }
   .sheetHandle:active, .sheetTitle:active { cursor: grabbing; }
   .sheetActions { display: flex; position: absolute; right: 12px; top: 0; gap: 4px; }
-  .sheetActions button { width: 40px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 12px; background: #f1f6f9; color: var(--blue); }
+  .sheetActions button { width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 12px; background: transparent; color: var(--ui-accent); box-shadow: none; }
   .chevronDown { transform: rotate(180deg); }
   .tools { display: none; }
   .toolsOpen { display: block; }
-  .search { margin-top: 12px; }
-  .search input { font-size: 16px; }
   .filters { margin-top: 8px; }
   .locations { min-height: 0; max-height: none; padding: 8px 12px; overscroll-behavior-y: contain; }
   .location { padding: 14px; background: #f7f9fc; border-color: #edf1f5; border-radius: 18px; }
@@ -108,4 +103,141 @@
   .expanded .mapArea :global(.leaflet-top) { top: 52px; }
   .collapsed .locations, .collapsed .note, .collapsed .tools { display: none; }
   .collapsed .listHeader { border-bottom: 0; }
+}
+
+.mobileDataNote { display: none; }
+@media (max-width: 640px) {
+  .explorer { display: flex; flex-direction: column; background: #f0f5fb; }
+  .summary { position: relative; top: auto; left: auto; right: auto; flex-shrink: 0; margin: 12px; padding: 12px 0; border: 0; background: #fff; border-radius: 18px; box-shadow: 0 3px 14px #0a315908; }
+  .summaryCard { gap: 6px; padding: 0 8px; min-width: 0; }
+  .summaryCard p { font-size: 12px; }
+  .summaryCard strong { font-size: 22px; line-height: 1.3; }
+  .summaryCard small { display: none; }
+  .icon { width: 24px; height: 30px; }
+  .icon svg { width: 17px; height: 17px; }
+  .app { position: relative; inset: auto; flex: 1; min-height: 0; margin: 0; }
+  .mapArea { left: 12px; right: 12px; border-radius: 18px; overflow: hidden; }
+  .mapArea :global(.leaflet-top), .expanded .mapArea :global(.leaflet-top) { top: 12px; }
+  .mapArea :global(.leaflet-control-zoom) { border: 1px solid #dce6ef; border-radius: 12px; overflow: hidden; box-shadow: 0 3px 12px #0a315914; }
+  .mapArea :global(.leaflet-control-zoom a) { width: 44px; height: 44px; line-height: 44px; color: #06539f; }
+  .mapArea :global(.map-error) { top: 12px; left: 66px; right: 10px; font-size: 12px; }
+  .expanded .summary { visibility: visible; }
+  .listPanel { border-radius: 24px 24px 0 0; box-shadow: 0 -4px 20px #0a315912; }
+  .listHeader { padding: 0 16px 12px; border-bottom-color: #edf2f7; }
+  .listHeader h3 { font-size: 17px; line-height: 1.4; }
+  .sheetTitle p { font-size: 12px; line-height: 1.5; }
+  .mobileDataNote { display: inline-block; margin-top: 6px; color: #526980; font-size: 12px; line-height: 1.5; }
+  .filters { gap: 4px; padding: 4px; background: #edf3fa; border-radius: 14px; }
+  .filters button { border: 0; border-radius: 10px; background: transparent; font-size: 13px; min-height: 44px; }
+  .filters button[aria-pressed="true"] { background: #06539f; color: #fff; }
+  .locations { padding: 12px; scroll-padding-block: 12px; }
+  .location { padding: 16px; margin-bottom: 12px; border: 1px solid #e8eef6; border-radius: 18px; background: #fff; box-shadow: 0 2px 8px #0a315905; }
+  .locationTop > span:nth-child(2) { min-width: 0; }
+  .locationTop strong { font-size: 15px; line-height: 1.5; overflow-wrap: anywhere; }
+  .locationTop small { font-size: 12px; line-height: 1.5; }
+  .wellAvatar { width: 38px; height: 40px; }
+  .metrics { gap: 12px; margin-top: 16px; }
+  .metrics > span { min-width: 0; overflow-wrap: anywhere; }
+  .metrics > span > small { font-size: 12px; line-height: 1.5; }
+  .metrics strong { font-size: 16px; line-height: 1.5; }
+  .metrics strong small { font-size: 12px; }
+  .locationFooter { align-items: center; flex-wrap: wrap; gap: 6px 12px; padding-top: 8px; margin-top: 10px; border-top-color: #edf2f7; font-size: 12px; }
+  .locationFooter > span:last-child { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; background: #edf5fc; color: #06539f; font-size: 13px; font-weight: 600; }
+  .note { display: none; }
+}
+
+@media (max-width: 640px) {
+  .listHeader { max-height: 70%; overflow-y: auto; overscroll-behavior-y: contain; }
+  .collapsed .listHeader { max-height: none; }
+  .collapsed .mobileDataNote { display: none; }
+}
+
+.mobileDetail { display: none; }
+@media (max-width: 640px) {
+  .explorer { display: block; }
+  .summary { position: absolute; top: 12px; left: 12px; right: 12px; margin: 0; }
+  .app { position: absolute; inset: 0; margin: 0; }
+  .mapArea { inset: 0; border-radius: 0; }
+  .mapArea :global(.leaflet-top) { top: 100px; }
+  .mapArea :global(.map-error) { top: 100px; }
+  .listPanel {
+    bottom: var(--mobile-nav-clearance);
+    height: min(var(--sheet-height), calc(100% - var(--mobile-nav-clearance) - 24px));
+  }
+  .expanded .summary { visibility: hidden; }
+  .expanded .mapArea :global(.leaflet-top) { top: 12px; }
+  .locationFooter > span:last-child { padding: 0; background: transparent; }
+  .desktopDetail { display: none; }
+  .mobileDetail { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 10px 14px; border-radius: 24px; background: #06539f; color: #fff; font-size: 13px; line-height: 1.5; font-weight: 600; }
+  .mobileDetail svg { flex-shrink: 0; }
+}
+
+@media (max-width: 640px) {
+  .expanded .mapArea :global(.leaflet-control-zoom) { display: flex; }
+  .expanded .mapArea :global(.leaflet-control-zoom a) { border-bottom: 0; }
+  .expanded .mapArea :global(.leaflet-control-zoom-in) { border-right: 1px solid #dce6ef; }
+}
+
+/* Solid continuation of the sheet beneath navigation; attribution stays on the map. */
+@media (max-width: 640px) {
+  .app::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--mobile-nav-clearance);
+    z-index: 3;
+    pointer-events: none;
+    background: #fff;
+  }
+  .mapArea :global(.leaflet-bottom.leaflet-right) {
+    bottom: calc(var(--mobile-nav-clearance) + min(var(--sheet-height), calc(100% - var(--mobile-nav-clearance) - 24px)) + 4px);
+    right: max(8px, env(safe-area-inset-right, 0px));
+  }
+  .mapArea :global(.leaflet-control-attribution) {
+    margin: 0;
+    padding: 0 4px;
+    font-size: 11px;
+    line-height: 16px;
+    max-width: calc(100vw - 16px);
+    color: #304b63;
+    background: #fffffff2;
+  }
+}
+
+:global(html[data-theme="dark"]) .explorer { background: var(--ui-background); }
+:global(html[data-theme="dark"]) :is(.summary, .summaryCard, .listPanel, .listHeader, .sheetHandle, .location) { background: var(--ui-surface); color: var(--ui-text); border-color: var(--ui-border); }
+:global(html[data-theme="dark"]) :is(.location:hover, .filters) { background: var(--ui-elevated); border-color: var(--ui-border); color: var(--ui-text); }
+:global(html[data-theme="dark"]) :is(.summaryCard strong, .locationTop strong, .metrics strong, .listHeader h3) { color: var(--ui-text); }
+:global(html[data-theme="dark"]) :is(.summaryCard p, .summaryCard small, .locationTop small, .metrics small, .sheetTitle p, .mobileDataNote, .note, .locationFooter) { color: var(--ui-muted); }
+:global(html[data-theme="dark"]) .filters button { background: transparent; color: var(--ui-muted); }
+:global(html[data-theme="dark"]) .filters button[aria-pressed="true"] { background: #06539f; color: #fff; }
+:global(html[data-theme="dark"]) .locationFooter { border-color: var(--ui-border); }
+:global(html[data-theme="dark"]) .app::after { background: var(--ui-surface); }
+:global(html[data-theme="dark"]) .online { background: var(--ui-success-surface); color: var(--ui-success); }
+:global(html[data-theme="dark"]) .offline { background: #403724; color: #f3c96d; }
+:global(html[data-theme="dark"]) .dot.online { background: #61d3b1; }
+:global(html[data-theme="dark"]) .dot.offline { background: #f3c96d; }
+:global(html[data-theme="dark"]) :is(.app, .legend) { background: var(--ui-surface); color: var(--ui-text); border-color: var(--ui-border); }
+:global(html[data-theme="dark"]) .sheetHandle span { background: var(--ui-muted); }
+:global(html[data-theme="dark"]) .total { background: var(--ui-accent-surface); color: var(--ui-accent); }
+:global(html[data-theme="dark"]) .locationFooter > span:last-child { color: var(--ui-accent); }
+:global(html[data-theme="dark"]) .mapArea :global(.leaflet-control-attribution) { background: var(--ui-overlay); color: var(--ui-muted); }
+
+.searchSlot { min-width: 0; margin-top: 14px; }
+@media (min-width: 641px) {
+  .app { display: grid; grid-template-columns: minmax(280px, .8fr) minmax(0, 1.6fr); height: clamp(560px, 70dvh, 860px); border-radius: 16px; overflow: hidden; }
+  .mapArea { order: initial; height: auto; border: 0; border-radius: 0; }
+  .listPanel { border-radius: 0; border-block: 0; border-left: 0; }
+  .location { background: var(--ui-surface); color: var(--ui-text); border-color: var(--ui-border); }
+  .locationFooter > span:last-child { display: inline-flex; min-height: 44px; align-items: center; color: var(--ui-accent); }
+  .desktopDetail { display: none; }
+  .mobileDetail { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 22px; background: #06539f; color: #fff; font-size: 13px; font-weight: 600; }
+  .locationFooter { align-items: center; flex-wrap: wrap; }
+}
+@media (max-width: 640px) {
+  .sheetActions button:hover { background: var(--ui-soft); }
+  .sheetActions button:active { background: var(--ui-elevated); }
+  .sheetActions button:focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 2px; }
 }

@@ -1,8 +1,14 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
+import { UiText, useUiCopy } from "./use-ui-copy";
+import { useUiPreferences } from "./ui-preferences";
+import { useSidebarPreference } from "./use-sidebar-preference";
 import {
   Building2,
+  PanelLeft,
+  PanelLeftClose,
   SlidersHorizontal,
   Users,
   Activity,
@@ -19,6 +25,7 @@ import {
   X,
 } from "lucide-react";
 import { Brand, useAuth } from "./auth";
+import { PullToRefresh } from "./pull-to-refresh";
 import { SplashScreen } from "./splash-screen";
 import { UsageChart } from "./usage-chart";
 import { Notifications } from "./notifications";
@@ -31,13 +38,13 @@ import { HistoryResults } from "./history-results";
 import { monitoringRepository } from "@/lib/monitoring-repository";
 import { AdminView } from "./admin-view";
 import { CustomSelect } from "./custom-select";
+import { DatePicker } from "./date-picker";
 import { MobileBackButton } from "./mobile-back-button";
 import { ProfileView } from "./profile-view";
 import "./history.css";
 import { useMapSheet } from "./use-map-sheet";
 import {
   aggregate,
-  number,
   selectReadings,
   wibDate,
   wibTime,
@@ -45,7 +52,7 @@ import {
 } from "@/lib/data";
 const WellMap = dynamic(() => import("./well-map"), {
   ssr: false,
-  loading: () => <div className="empty">Memuat peta…</div>,
+  loading: () => <div className="empty"><UiText value="Memuat peta…" /></div>,
 });
 type Tab = "dashboard" | "map" | "history" | "profile" | "locations" | "users" | "manage";
 const tabs = [
@@ -55,6 +62,10 @@ const tabs = [
   { id: "profile", label: "Profil", icon: UserRound },
 ] as const;
 export default function Dashboard({ adminPreview = false }: { adminPreview?: boolean }) {
+  const { localize, number, locale } = useUiCopy();
+  const { t } = useUiPreferences();
+  const navLabel = (id: string) => t(id === "dashboard" ? "home" : id === "map" ? "map" : id === "history" ? "history" : id === "manage" ? "manage" : "profile");
+  const { collapsed: sidebarCollapsed, toggle: toggleSidebar } = useSidebarPreference();
   const { user, role: accountRole, demo: sessionDemo } = useAuth();
   // Preview changes navigation only; AuthContext and server authorization stay unchanged.
   const role = adminPreview ? "ADMIN" : accountRole;
@@ -79,6 +90,28 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
   const [detailPeriod, setDetailPeriod] = useState("hour");
   const [refreshing, setRefreshing] = useState(false);
   const [clock, setClock] = useState(() => Date.now());
+  const [mobileHeaderCollapsed, setMobileHeaderCollapsed] = useState(false);
+  useEffect(() => {
+    const mobile = window.matchMedia("(max-width: 640px)");
+    let frame = 0;
+    const update = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        setMobileHeaderCollapsed(previous => mobile.matches && tab === "dashboard"
+          ? window.scrollY > 96 || (previous && window.scrollY > 24)
+          : false);
+      });
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    mobile.addEventListener("change", update);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", update);
+      mobile.removeEventListener("change", update);
+    };
+  }, [tab]);
+
   useEffect(() => {
     const timer = setInterval(() => setClock(Date.now()), 60000);
     return () => clearInterval(timer);
@@ -113,7 +146,10 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
       previous?.focus();
     };
   }, [selected]);
-  async function refresh() {
+  const refreshLock = useRef(false);
+  const refresh = useCallback(async () => {
+    if (refreshLock.current) return;
+    refreshLock.current = true;
     setRefreshing(true);
     try {
       const incoming = await monitoringRepository.load(demo);
@@ -125,9 +161,10 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
     } catch {
       setError("Data gagal dimuat. Coba muat ulang.");
     } finally {
+      refreshLock.current = false;
       setRefreshing(false);
     }
-  }
+  }, [demo, adminPreview]);
   useEffect(() => {
     monitoringRepository
       .load(demo)
@@ -136,7 +173,7 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
   }, [demo]);
   if (!data && !error) return <SplashScreen message="Menyiapkan data contoh" />;
   if (!data)
-    return (
+    return localize(
       <main className="splash">
         <Brand />
         <p>{error || "Menyiapkan data contoh…"}</p>
@@ -200,18 +237,20 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
     <>
       {(mobile ? mobileTabs : tabs)
         .filter((t) => includeProfile || t.id !== "profile")
-        .map((t) => (
+        .map((item) => (
           <button
-            key={t.id}
-            className={(tab === t.id || (t.id === "manage" && managementActive)) ? "nav-item active" : "nav-item"}
+            key={item.id}
+            aria-label={navLabel(item.id)}
+            title={!mobile && sidebarCollapsed ? navLabel(item.id) : undefined}
+            className={(tab === item.id || (item.id === "manage" && managementActive)) ? "nav-item active" : "nav-item"}
             onClick={() => {
-              setTab(t.id);
+              setTab(item.id);
               setSelected("");
             }}
-            aria-current={(tab === t.id || (t.id === "manage" && managementActive)) ? "page" : undefined}
+            aria-current={(tab === item.id || (item.id === "manage" && managementActive)) ? "page" : undefined}
           >
-            <t.icon size={20} aria-hidden="true" />
-            <span>{t.label}</span>
+            <item.icon size={20} aria-hidden="true" />
+            <span>{navLabel(item.id)}</span>
           </button>
         ))}
     </>
@@ -235,11 +274,11 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
             )}
           </span>
           <span className="well-name">
-            <strong>{w.name}</strong>
+            <strong translate="no">{w.name}</strong>
             <small>
-              {w.type === "BUILDING" ? "Gedung" : "Sumur"} - {w.area}
+              {w.type === "BUILDING" ? "Gedung" : "Sumur"} - <span translate="no">{w.area}</span>
               {w.type === "BUILDING"
-                ? ` - Jumlah pegawai: ${w.occupants ?? "Belum tersedia"}`
+                ? <> - Jumlah pegawai: {w.occupants ?? "Belum tersedia"}</>
                 : ""}
             </small>
           </span>
@@ -268,10 +307,16 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
       ))}
     </div>
   );
-  return (
-    <div className="app-shell">
-      <aside className="sidebar">
-        <Brand />
+  return localize(
+    <div className={`app-shell${role === "ADMIN" ? " admin-shell" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}>
+      <aside className={`sidebar${sidebarCollapsed ? " collapsed" : ""}`} id="desktop-sidebar">
+        <div className="sidebar-brand" role="img" aria-label="SIMARA — Sistem Informasi Monitoring Air">
+          <Image className="sidebar-brand-symbol" src="/logo-simara-putih.svg" width={621} height={856} alt="" priority />
+          <Image className="sidebar-brand-full" src="/tulisan-simara-putih.svg" width={1310} height={223} alt="" />
+        </div>
+        <button type="button" className="sidebar-toggle" title={sidebarCollapsed ? "Buka sidebar" : "Tutup sidebar"} aria-controls="desktop-sidebar" aria-expanded={!sidebarCollapsed} aria-label={sidebarCollapsed ? "Buka sidebar" : "Tutup sidebar"} onClick={toggleSidebar}>
+          {sidebarCollapsed ? <PanelLeft size={21} /> : <PanelLeftClose size={21} />}
+        </button>
 
         <nav>
           {role === "ADMIN" && <small>MONITORING</small>}
@@ -281,17 +326,21 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
               <small>PENGELOLAAN</small>
               <button
                 className={`nav-item ${tab === "locations" ? "active" : ""}`}
+                aria-label="Kelola Titik Monitoring"
+                title={sidebarCollapsed ? "Kelola Titik Monitoring" : undefined}
                 onClick={() => setTab("locations")}
               >
                 <MapPin size={20} />
-                Kelola Titik Monitoring
+                <span>Kelola Titik Monitoring</span>
               </button>
               <button
                 className={`nav-item ${tab === "users" ? "active" : ""}`}
+                aria-label="Pengguna"
+                title={sidebarCollapsed ? "Pengguna" : undefined}
                 onClick={() => setTab("users")}
               >
                 <UserRound size={20} />
-                Pengguna
+                <span>Pengguna</span>
               </button>
             </>
           )}
@@ -300,7 +349,8 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
         <button
           type="button"
           className="sidebar-footer"
-          aria-label="Profil"
+          aria-label={t("profile")}
+          title={sidebarCollapsed ? "Profil" : undefined}
           aria-current={tab === "profile" ? "page" : undefined}
           onClick={() => {
             setTab("profile");
@@ -317,36 +367,37 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
           <ChevronRight size={16} aria-hidden="true" />
         </button>
       </aside>
-      <div className={`app-main ${tab === "map" ? "map-mode" : ""}`}>
+      <div className={`app-main ${tab === "map" ? "map-mode" : ""}${tab === "dashboard" ? " mobile-dashboard" : ""}${mobileHeaderCollapsed ? " dashboard-header-collapsed" : ""}${tab === "history" || tab === "profile" ? " mobile-secondary" : ""}`}>
         <header className={`topbar${role === "ADMIN" && (tab === "locations" || tab === "users") ? " admin-child-header" : ""}`}>
           {role === "ADMIN" && (tab === "locations" || tab === "users") && <MobileBackButton onClick={() => setTab("manage")} />}
           <div>
             <h1>
               {tab === "dashboard"
-                ? "Dashboard"
+                ? t("dashboard")
                 : tab === "map"
-                  ? "Peta monitoring"
+                  ? t("mapTitle")
                   : tab === "history"
-                    ? "Riwayat"
+                    ? t("history")
                     : tab === "manage"
-                      ? "Kelola"
+                      ? t("manage")
                     : tab === "locations"
-                      ? "Kelola Titik Monitoring"
+                      ? t("locations")
                       : tab === "users"
-                        ? "Pengguna"
-                        : "Profil"}
+                        ? t("users")
+                        : t("profile")}
             </h1>
             <time dateTime={today}>
-              {new Date(data.generatedAt).toLocaleDateString("id-ID", {
+              {new Date(data.generatedAt).toLocaleDateString(locale, {
                 timeZone: "Asia/Jakarta",
                 day: "numeric",
                 month: "short",
               })}
             </time>
           </div>
+          <div className="mobile-brand"><Brand /></div>
           <div className="top-actions">
             <button
-              className="icon-button"
+              className="icon-button desktop-refresh"
               aria-label="Perbarui data contoh"
               onClick={refresh}
               disabled={refreshing}
@@ -356,7 +407,14 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
             <Notifications data={data} onSelect={selectWell} now={clock} />
           </div>
         </header>
-        <main className={`content${tab === "history" ? " history-content" : ""}`}>
+        <PullToRefresh onRefresh={refresh} disabled={!!selected || tab === "map"} error={error} />
+        <main className={`content${tab === "history" ? " history-content" : tab === "dashboard" ? " home-content" : ""}`}>
+          {tab === "dashboard" && <section className="mobile-dashboard-intro" aria-label="Ringkasan dashboard">
+            <time dateTime={today}>{new Date(data.generatedAt).toLocaleDateString(locale, { timeZone: "Asia/Jakarta", weekday: "long", day: "numeric", month: "long", year: "numeric" })}</time>
+            <h2>Dashboard</h2>
+            <p>Pantau penggunaan air dan koneksi perangkat kampus.</p>
+            {demo && <span className="mobile-demo-marker">Data simulasi</span>}
+          </section>}
           {adminPreview && tab !== "history" && <details className="admin-preview-note"><summary>Pratinjau - Data contoh</summary><p>Data simulasi, bukan data resmi UNNES. Perubahan hanya untuk sesi ini dan direset saat halaman dimuat ulang.</p></details>}
           {tab !== "users" && !(role === "ADMIN" && (tab === "profile" || managementActive)) && <div className="data-context">
             <div className="data-meta">
@@ -373,7 +431,7 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
               </details>
               <p role="status">
                 Diperbarui{" "}
-                {new Date(data.generatedAt).toLocaleTimeString("id-ID", {
+                {new Date(data.generatedAt).toLocaleTimeString(locale, {
                   timeZone: "Asia/Jakarta",
                   hour: "2-digit",
                   minute: "2-digit",
@@ -395,15 +453,8 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
           </div>}
           {tab === "dashboard" && (
             <>
-              {exceededBuildings > 0 && <p className="notice">{exceededBuildings} gedung melebihi batas pemakaian harian.</p>}
+              {exceededBuildings > 0 && <p className="notice dashboard-limit-notice">{exceededBuildings} gedung melebihi batas pemakaian harian.</p>}
               <section className="dashboard-hero">
-                <div className="hero-summary">
-                  <Wifi size={20} />
-                  <strong>
-                    {online} dari {activeLocations.length} titik terhubung
-                  </strong>
-                  <p>{offline} titik terputus · contoh</p>
-                </div>
                 <article className="stat featured">
                   <div>
                     <span>Pemakaian gedung hari ini</span>
@@ -418,6 +469,13 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
                     · sejak 00.00 WIB
                   </p>
                 </article>
+                <div className="hero-summary" aria-label="Koneksi titik monitoring">
+                  <span className="connection-total">
+                    <span className={`connection-dot ${online > 0 ? "connected" : "disconnected"}`} aria-hidden="true" />
+                    <span>{online} dari {activeLocations.length} titik terhubung</span>
+                  </span>
+                  <span className={`connection-secondary${offline > 0 ? " has-offline" : ""}`}>{offline} terputus</span>
+                </div>
               </section>
               <section className="stats quick-stats">
                 <article className="stat">
@@ -488,11 +546,11 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
                     </div>
                   </div>
                   <div className="status-line">
-                    <span className="text-green">Terhubung</span>
+                    <span className="connection-status"><span className="connection-dot connected" aria-hidden="true" />Terhubung</span>
                     <strong>{online}</strong>
                   </div>
                   <div className="status-line">
-                    <span className="text-amber">Terputus</span>
+                    <span className="connection-status"><span className="connection-dot disconnected" aria-hidden="true" />Terputus</span>
                     <strong>{offline}</strong>
                   </div>
                   <p className="map-help">
@@ -507,11 +565,11 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
                     <p>Lokasi contoh</p>
                   </div>
                   <button
-                    className="icon-button"
+                    className="ghost-icon"
                     aria-label="Buka peta lengkap"
                     onClick={() => setTab("map")}
                   >
-                    <ArrowRight size={19} />
+                    <ChevronRight size={20} aria-hidden="true" />
                   </button>
                 </div>
                 <WellMap
@@ -536,6 +594,7 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
           )}
           {tab === "map" && (
             <MapExplorer
+              illustrative={demo}
               wells={data.locations}
               daily={daily}
               selected={selected}
@@ -546,8 +605,9 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
             <div className="history-view">
               <div className="history-intro">
                 <div>
-                  <h2>Penggunaan air</h2>
-                  <p>Pantau penggunaan berdasarkan lokasi dan periode.</p>
+                  <span className="history-heading-icon" aria-hidden="true"><CalendarDays size={24} /></span>
+                  <h2><span className="history-mobile-copy">Penggunaan air</span><span className="history-desktop-copy">Riwayat Penggunaan Air</span></h2>
+                  <p><span className="history-mobile-copy">Pantau penggunaan berdasarkan lokasi dan periode.</span><span className="history-desktop-copy">Pantau penggunaan air berdasarkan lokasi dan periode.</span></p>
                 </div>
                 <ReportDownload disabled={invalid || !history.length} input={{readings:history,locations:data.locations,start:rangeStart,end:rangeEnd,period,kind,location:data.locations.find(w=>w.id===filter)?.name || "Semua titik",illustrative:demo}} />
               </div>
@@ -555,12 +615,13 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
                 <div className="date-fields">
                   <label className="history-period">
                     Periode
-                    <CustomSelect ariaLabel="Periode" value={period} onChange={changePeriod} options={["Harian", "Mingguan", "Bulanan", "Tahunan", "Rentang tanggal"].map(value => ({value, label: value}))} />
+                    <CustomSelect compact ariaLabel="Periode" value={period} onChange={changePeriod} options={["Harian", "Mingguan", "Bulanan", "Tahunan", "Rentang tanggal"].map(value => ({value, label: value}))} />
                   </label>
                   <label>
                     Jenis titik
                     <CustomSelect
                       ariaLabel="Jenis titik"
+                      compact
                       value={kind}
                       onChange={(value) => {
                         setKind(value);
@@ -573,31 +634,32 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
                     Lokasi titik
                     <CustomSelect
                       ariaLabel="Lokasi titik"
+                      compact
                       value={filter}
                       onChange={setFilter}
                       options={[{ value: "all", label: "Semua titik" }, ...data.locations
                         .filter((w) => kind === "all" || w.type === kind)
-                        .map((w) => ({ value: w.id, label: w.name }))]}
+                        .map((w) => ({ value: w.id, label: w.name, translate: false }))]}
                     />
                   </label>
                   <label>
                     Dari tanggal
-                    <input
-                      type="date"
+                    <DatePicker
+                      ariaLabel="Dari tanggal"
                       value={rangeStart}
-                      onChange={(e) => {
-                        setStart(e.target.value);
+                      onChange={(value) => {
+                        setStart(value);
                         setPeriod("Rentang tanggal");
                       }}
                     />
                   </label>
                   <label>
                     Sampai tanggal
-                    <input
-                      type="date"
+                    <DatePicker
+                      ariaLabel="Sampai tanggal"
                       value={rangeEnd}
-                      onChange={(e) => {
-                        setEnd(e.target.value);
+                      onChange={(value) => {
+                        setEnd(value);
                         setPeriod("Rentang tanggal");
                       }}
                     />
@@ -652,9 +714,10 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
           )}
           {tab === "profile" && <ProfileView adminPreview={adminPreview} />}
           {role === "ADMIN" && tab === "manage" && <section className="management-hub" aria-label="Kelola">
-            <p>Kelola data dan akses TIRTA UNNES.</p>
-            <button onClick={() => setTab("locations")}><MapPin aria-hidden="true" /><span><strong>Titik Monitoring</strong><small>Kelola Sumur dan Gedung</small></span><ChevronRight size={18} aria-hidden="true" /></button>
-            <button onClick={() => setTab("users")}><Users aria-hidden="true" /><span><strong>Pengguna</strong><small>Kelola akun dan hak akses</small></span><ChevronRight size={18} aria-hidden="true" /></button>
+            <h2>Manajemen SIMARA</h2>
+            <p>Kelola titik monitoring dan akses pengguna.</p>
+            <button onClick={() => setTab("locations")}><span className="management-icon"><MapPin aria-hidden="true" /></span><span><strong>Titik Monitoring</strong><small>Kelola sumur dan gedung</small></span><ChevronRight size={18} aria-hidden="true" /></button>
+            <button onClick={() => setTab("users")}><span className="management-icon"><Users aria-hidden="true" /></span><span><strong>Pengguna</strong><small>Kelola akun dan hak akses</small></span><ChevronRight size={18} aria-hidden="true" /></button>
           </section>}
           {(adminPreview || (!demo && role === "ADMIN")) && (tab === "locations" || tab === "users") && (
             <AdminView key={tab} page={tab} snapshot={data} preview={adminPreview} onLocationsChange={() => void refresh()} onPreviewSave={row => setData(old => {
@@ -712,10 +775,10 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
             <div className="panel-heading">
               <div {...detailHandlers} className="detail-sheet-title">
                 <span className="eyebrow">TITIK MONITORING · DATA CONTOH</span>
-                <h2>{well.name}</h2>
+                <h2><span translate="no">{well.name}</span></h2>
                 <p className="detail-area">
                   <MapPin size={14} />
-                  {well.area}
+                  <span translate="no">{well.area}</span>
                 </p>
               </div>
               <button
@@ -773,7 +836,7 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
               <section className="well-description">
                 <h3>Informasi titik</h3>
                 <p>
-                  {well.name} merupakan titik monitoring di {well.area}. Data
+                  <span translate="no">{well.name}</span> merupakan titik monitoring di <span translate="no">{well.area}</span>. Data
                   contoh menampilkan debit terkini dan akumulasi pemakaian air
                   hari ini berdasarkan interval yang diterima.
                 </p>
@@ -784,7 +847,7 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
                   </div>
                   <div>
                     <dt>Kode titik</dt>
-                    <dd>{well.code}</dd>
+                    <dd><span translate="no">{well.code}</span></dd>
                   </div>
                   <div>
                     <dt>Pembaruan terakhir</dt>

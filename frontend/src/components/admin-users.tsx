@@ -7,6 +7,7 @@ import {
   useState,
   type FormEvent,
 } from "react";
+import { useUiCopy } from "./use-ui-copy";
 import { FunctionsHttpError } from "@supabase/supabase-js";
 import { Plus, RefreshCw, X } from "lucide-react";
 import { supabase, isUnnesEmail } from "@/lib/supabase";
@@ -57,6 +58,7 @@ const dummyAccounts: Account[] = [
 ];
 
 export function AdminUsers({ preview = false }: { preview?: boolean }) {
+  const { localize } = useUiCopy();
   const { user } = useAuth();
   const ownId = preview ? "dummy-admin" : user?.id;
   const nextDummyId = useRef(0);
@@ -251,7 +253,7 @@ export function AdminUsers({ preview = false }: { preview?: boolean }) {
     );
   }
   const blocked = loading || busy;
-  return (
+  return localize(
     <section className={styles.page} aria-label="Pengelolaan pengguna">
       <header className={styles.header}>
         <div>
@@ -326,8 +328,8 @@ export function AdminUsers({ preview = false }: { preview?: boolean }) {
               >
                 <div className={styles.identity}>
                   <div className={styles.avatar} aria-hidden="true">{(account.name || account.email).trim().slice(0, 1).toUpperCase()}</div>
-                  <strong>{account.name || "Pengguna UNNES"}</strong>
-                  <span>{account.email}</span>
+                  <strong translate="no">{account.name || "Pengguna UNNES"}</strong>
+                  <span translate="no">{account.email}</span>
                   {own && <small>Akun Anda · dilindungi</small>}
                 </div>
                 <CustomSelect
@@ -450,10 +452,10 @@ export function AdminUsers({ preview = false }: { preview?: boolean }) {
         ) : (
           popup && (
             <div className={styles.confirm}>
-              <strong>{popup.name || "Pengguna UNNES"}</strong>
+              <strong translate="no">{popup.name || "Pengguna UNNES"}</strong>
               <p>{popup.email}</p>
               <p>
-                Pengguna ini akan kehilangan akses ke TIRTA UNNES. Akun akan
+                Pengguna ini akan kehilangan akses ke SIMARA. Akun akan
                 dihapus permanen.
               </p>
               {dialogError && <p role="alert">{dialogError}</p>}

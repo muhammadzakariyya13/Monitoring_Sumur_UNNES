@@ -2,8 +2,11 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
   ChevronRight,
+  Languages,
+  Moon,
   LockKeyhole,
   LogOut,
   Mail,
@@ -12,14 +15,20 @@ import {
   X,
 } from "lucide-react";
 
+import { useUiCopy } from "./use-ui-copy";
+import { useUiPreferences } from "./ui-preferences";
+import { CustomSelect } from "./custom-select";
 import { useAuth } from "./auth";
 import { supabase } from "@/lib/supabase";
 import styles from "./profile-view.module.css";
 
 export function ProfileView({ adminPreview = false }: { adminPreview?: boolean }) {
+  const { localize } = useUiCopy();
+  const router = useRouter();
   const { user, role, logout } = useAuth();
+  const { language, theme, setLanguage, setTheme, t } = useUiPreferences();
 
-  const initialName = user?.user_metadata?.full_name || (adminPreview ? "Admin TIRTA UNNES" : "Pengguna TIRTA UNNES");
+  const initialName = user?.user_metadata?.full_name || (adminPreview ? "Admin SIMARA" : "Pengguna SIMARA");
 
   const initialEmail = user?.email || (adminPreview ? "Akun pratinjau" : "Belum masuk akun");
 
@@ -132,17 +141,17 @@ export function ProfileView({ adminPreview = false }: { adminPreview?: boolean }
     setPasswordError("");
 
     if (newPassword.length < 8) {
-      setPasswordError("Kata sandi minimal terdiri dari 8 karakter.");
+      setPasswordError(t("passwordShort"));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setPasswordError("Konfirmasi kata sandi tidak sesuai.");
+      setPasswordError(t("passwordMismatch"));
       return;
     }
 
     if (!user || !supabase || !passwordAccount) {
-      setPasswordError("Perubahan sandi memerlukan akun email.");
+      setPasswordError(t("passwordAccount"));
       return;
     }
 
@@ -160,10 +169,10 @@ export function ProfileView({ adminPreview = false }: { adminPreview?: boolean }
       setNewPassword("");
       setConfirmPassword("");
 
-      setMessage("Kata sandi berhasil diperbarui.");
+      setMessage(t("passwordSaved"));
     } catch {
       setPasswordError(
-        "Kata sandi belum berhasil diperbarui. Silakan coba lagi.",
+        t("passwordFailed"),
       );
     } finally {
       setBusy(false);
@@ -171,6 +180,7 @@ export function ProfileView({ adminPreview = false }: { adminPreview?: boolean }
   }
 
   async function handleLogout() {
+    if (!user) { router.push("/login/"); return; }
     setBusy(true);
     setMessage("");
     setError("");
@@ -179,12 +189,12 @@ export function ProfileView({ adminPreview = false }: { adminPreview?: boolean }
       // Jika sudah menggunakan autentikasi Supabase
       await logout();
     } catch {
-      setError("Gagal keluar. Silakan coba lagi.");
+      setError(t("logoutFailed"));
       setBusy(false);
     }
   }
 
-  return (
+  return localize(
     <div className={`${styles.page} ${role === "ADMIN" || adminPreview ? styles.adminMobile : ""}`}>
       {(message || error) && (
         <div
@@ -195,6 +205,27 @@ export function ProfileView({ adminPreview = false }: { adminPreview?: boolean }
         </div>
       )}
 
+      <section className={styles.mobileProfile} aria-label={t("profile")}>
+        <div className={styles.mobileHero}>
+          <div className={styles.mobileAvatar} aria-hidden="true">{user?.email ? user.email[0].toUpperCase() : <UserRound size={34} />}</div>
+        </div>
+        <div className={styles.mobilePanel}>
+          <dl className={styles.accountInfo}>
+            <div><dt>{t("status")}</dt><dd>{user ? (role === "ADMIN" ? "Admin" : "Viewer") : t("signedOut")}</dd></div>
+            <div><dt>{t("email")}</dt><dd>{user?.email || t("unavailable")}</dd></div>
+          </dl>
+          {!user && <p className={styles.previewHint}>{t("preview")}</p>}
+          <h2 className={styles.settingsHeading}>{t("settings")}</h2>
+          <button type="button" className={styles.settingRow} onClick={openPasswordModal} disabled={busy || !passwordAccount}>
+            <LockKeyhole size={20} /><span><strong>{t("password")}</strong><small>{!user ? t("loginHint") : passwordAccount ? t("passwordHint") : t("googleHint")}</small></span><ChevronRight size={18} />
+          </button>
+          <div className={styles.settingRow}><Languages size={20} /><span>{t("language")}</span><div className={styles.languageControl} id="profile-language"><CustomSelect ariaLabel={t("language")} value={language} onChange={value => setLanguage(value === "en" ? "en" : "id")} options={[{value:"id", label:"Bahasa Indonesia"},{value:"en", label:"English"}]} /></div></div>
+          <div className={styles.settingRow}><Moon size={20} /><span>{t("dark")}</span><button type="button" role="switch" aria-label={t("dark")} aria-checked={theme === "dark"} className={styles.themeSwitch} onClick={() => setTheme(theme === "dark" ? "light" : "dark")}><span /></button></div>
+          <button type="button" className={`${styles.settingRow} ${styles.mobileLogout}`} onClick={handleLogout} disabled={busy}><LogOut size={20} /><span>{user ? t("logout") : t("leavePreview")}</span><ChevronRight size={18} /></button>
+          <p className={styles.mobileCredit}>SIMARA | Developed by <strong>Hans Elektronik Team</strong></p>
+        </div>
+      </section>
+      <div className={styles.desktopProfile}>
       <section className={styles.profileCard} aria-label="Profil akun">
         <div className={styles.cover} aria-hidden="true" />
 
@@ -215,15 +246,15 @@ export function ProfileView({ adminPreview = false }: { adminPreview?: boolean }
             </div>
 
             <div className={styles.identityText}>
-              <h2>{displayName}</h2>
+              <h2 translate="no">{user ? displayName : t("profile")}</h2>
 
               <div className={styles.email}>
                 <Mail size={14} />
 
-                <span>{initialEmail}</span>
+                <span translate="no">{user?.email || t("signedOut")}</span>
               </div>
               <span className={styles.role}>
-                {role === "ADMIN" || adminPreview ? "Admin" : "Viewer"}
+                {user ? (role === "ADMIN" ? "Admin" : "Viewer") : t("preview")}
               </span>
             </div>
           </div>
@@ -239,59 +270,37 @@ export function ProfileView({ adminPreview = false }: { adminPreview?: boolean }
             <span>Edit Profil</span>
           </button>
         </div>
-        <section className={styles.actions} aria-label="Pengaturan akun">
-          <button
-            type="button"
-            onClick={openPasswordModal}
-            disabled={busy || !passwordAccount}
-            className={styles.action}
-          >
-            <span className={styles.actionMain}>
-              <span className={styles.actionIcon}>
-                <LockKeyhole size={19} />
-              </span>
-
-              <span className={styles.actionText}>
-                <strong>Ubah Kata Sandi</strong>
-                <small>Perbarui keamanan akun</small>
-              </span>
-            </span>
-
-            <ChevronRight size={19} className={styles.chevron} />
-          </button>
-
-          <button
-            type="button"
-            aria-label="Keluar"
-            onClick={handleLogout}
-            disabled={busy}
-            className={`${styles.action} ${styles.logout}`}
-          >
-            <span className={styles.actionMain}>
-              <span className={`${styles.actionIcon} ${styles.logoutIcon}`}>
-                <LogOut size={19} />
-              </span>
-
-              <span className={styles.actionText}>
-                <strong>Keluar</strong>
-                <small>Keluar dari akun pada perangkat ini</small>
-              </span>
-            </span>
-
-            <ChevronRight size={19} className={styles.chevron} />
-          </button>
-        </section>
+        <div className={styles.desktopColumns}>
+          <section className={styles.accountPanel} aria-label="Informasi akun">
+            <h3>Informasi akun</h3>
+            <dl className={styles.accountInfo}>
+              <div><dt>{t("status")}</dt><dd>{user ? (role === "ADMIN" ? "Admin" : "Viewer") : t("signedOut")}</dd></div>
+              <div><dt>{t("email")}</dt><dd translate="no">{user?.email || t("unavailable")}</dd></div>
+            </dl>
+            {!user && <p className={styles.previewHint}>{t("preview")}</p>}
+          </section>
+          <section className={styles.settingsPanel} aria-label={t("settings")}>
+            <h3>{t("settings")}</h3>
+            <button type="button" className={styles.settingRow} onClick={openPasswordModal} disabled={busy || !passwordAccount}>
+              <LockKeyhole size={20} /><span><strong>{t("password")}</strong><small>{!user ? t("loginHint") : passwordAccount ? t("passwordHint") : t("googleHint")}</small></span><ChevronRight size={18} />
+            </button>
+            <div className={styles.settingRow}><Languages size={20} /><span>{t("language")}</span><div className={styles.languageControl}><CustomSelect compact ariaLabel={t("language")} value={language} onChange={value => setLanguage(value === "en" ? "en" : "id")} options={[{value:"id", label:"Bahasa Indonesia"},{value:"en", label:"English"}]} /></div></div>
+            <div className={styles.settingRow}><Moon size={20} /><span>{t("dark")}</span><button type="button" role="switch" aria-label={t("dark")} aria-checked={theme === "dark"} className={styles.themeSwitch} onClick={() => setTheme(theme === "dark" ? "light" : "dark")}><span /></button></div>
+            <button type="button" className={`${styles.settingRow} ${styles.mobileLogout}`} onClick={handleLogout} disabled={busy}><LogOut size={20} /><span>{user ? t("logout") : t("leavePreview")}</span><ChevronRight size={18} /></button>
+          </section>
+        </div>
       </section>
 
       <div className={styles.footer}>
         <div>
-          <strong>TIRTA UNNES</strong>
+          <strong>SIMARA</strong>
           <span>Monitoring Air Sumur dan Gedung</span>
         </div>
 
         <span>Universitas Negeri Semarang</span>
       </div>
 
+      </div>
       {/* EDIT PROFILE */}
       <dialog
         ref={modal}
@@ -335,7 +344,7 @@ export function ProfileView({ adminPreview = false }: { adminPreview?: boolean }
 
               <div>
                 <strong>{displayName}</strong>
-                <span>{initialEmail}</span>
+                <span translate="no">{initialEmail}</span>
               </div>
             </div>
 
@@ -390,7 +399,7 @@ export function ProfileView({ adminPreview = false }: { adminPreview?: boolean }
 
       <dialog
         ref={passwordModal}
-        aria-label="Ubah Kata Sandi"
+        aria-label={t("password")}
         className={styles.modal}
         onCancel={(e) => {
           if (busy) e.preventDefault();
@@ -399,13 +408,13 @@ export function ProfileView({ adminPreview = false }: { adminPreview?: boolean }
         <form onSubmit={changePassword}>
           <header className={styles.modalHeader}>
             <div>
-              <h2>Ubah Kata Sandi</h2>
-              <p>Perbarui kata sandi akun Anda</p>
+              <h2>{t("password")}</h2>
+              <p>{t("passwordDescription")}</p>
             </div>
 
             <button
               type="button"
-              aria-label="Tutup"
+              aria-label={t("close")}
               onClick={closePasswordModal}
               disabled={busy}
             >
@@ -415,7 +424,7 @@ export function ProfileView({ adminPreview = false }: { adminPreview?: boolean }
 
           <div className={styles.modalContent}>
             <label className={styles.field}>
-              <span>Kata Sandi Baru</span>
+              <span>{t("newPassword")}</span>
 
               <input
                 type="password"
@@ -424,12 +433,12 @@ export function ProfileView({ adminPreview = false }: { adminPreview?: boolean }
                 autoComplete="new-password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Minimal 8 karakter"
+                placeholder={t("minimum")}
               />
             </label>
 
             <label className={styles.field}>
-              <span>Konfirmasi Kata Sandi</span>
+              <span>{t("confirmPassword")}</span>
 
               <input
                 type="password"
@@ -438,7 +447,7 @@ export function ProfileView({ adminPreview = false }: { adminPreview?: boolean }
                 autoComplete="new-password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Masukkan kembali kata sandi"
+                placeholder={t("reenter")}
               />
             </label>
 
@@ -456,11 +465,11 @@ export function ProfileView({ adminPreview = false }: { adminPreview?: boolean }
               onClick={closePasswordModal}
               disabled={busy}
             >
-              Batal
+              {t("cancel")}
             </button>
 
             <button type="submit" className={styles.saveButton} disabled={busy}>
-              {busy ? "Menyimpan..." : "Ubah Kata Sandi"}
+              {busy ? t("saving") : t("password")}
             </button>
           </footer>
         </form>

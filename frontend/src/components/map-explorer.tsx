@@ -1,23 +1,26 @@
 "use client";
 
+import { UiText, useUiCopy } from "./use-ui-copy";
+import { SearchField } from "./search-field";
 import { useState } from "react";
 import { useMapSheet } from "./use-map-sheet";
 import dynamic from "next/dynamic";
 import {
   Building2,
   ChevronUp,
+  ChevronRight,
   Droplets,
   MapPin,
   Search,
   Wifi,
   WifiOff,
 } from "lucide-react";
-import { number, type Reading, type MonitoringLocation } from "@/lib/data";
+import { type Reading, type MonitoringLocation } from "@/lib/data";
 import styles from "./map-explorer.module.css";
 
 const WellMap = dynamic(() => import("./well-map"), {
   ssr: false,
-  loading: () => <div className="empty">Memuat peta…</div>,
+  loading: () => <div className="empty"><UiText value="Memuat peta…" /></div>,
 });
 
 export function MapExplorer({
@@ -25,12 +28,15 @@ export function MapExplorer({
   daily,
   selected,
   onSelect,
+  illustrative = false,
 }: {
   wells: MonitoringLocation[];
   daily: Reading[];
   selected: string;
   onSelect: (id: string) => void;
+  illustrative?: boolean;
 }) {
+  const { localize, number } = useUiCopy();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
   const {
@@ -40,7 +46,7 @@ export function MapExplorer({
     handlers: sheetHandlers,
     toggle: toggleSheet,
     expand: expandSheet,
-  } = useMapSheet();
+  } = useMapSheet(32, 78);
   const expanded = sheetStop === 2;
   const [showFilters, setShowFilters] = useState(false);
   const online = wells.filter((w) => w.active && w.flow !== null).length;
@@ -51,7 +57,7 @@ export function MapExplorer({
         .includes(query.trim().toLowerCase()) &&
       (status === "all" || w.type === status),
   );
-  return (
+  return localize(
     <section
       ref={containerRef}
       style={sheetStyle}
@@ -121,7 +127,7 @@ export function MapExplorer({
                   if (!showFilters) expandSheet();
                 }}
               >
-                <Search size={19} />
+                <Search size={20} />
               </button>
               <button
                 aria-label={expanded ? "Kecilkan panel" : "Perluas panel"}
@@ -129,7 +135,7 @@ export function MapExplorer({
                 onClick={toggleSheet}
               >
                 <ChevronUp
-                  size={19}
+                  size={20}
                   className={expanded ? styles.chevronDown : ""}
                 />
               </button>
@@ -139,20 +145,15 @@ export function MapExplorer({
               <p aria-live="polite">
                 Menampilkan {visible.length} dari {wells.length} titik
               </p>
+              {illustrative && <span className={styles.mobileDataNote}>Data simulasi</span>}
             </div>
             <div
               id="map-search-filters"
               className={`${styles.tools} ${showFilters ? styles.toolsOpen : ""}`}
             >
-              <label className={styles.search}>
-                <Search size={18} aria-hidden="true" />
-                <input
-                  aria-label="Cari titik"
-                  placeholder="Cari nama, kode, atau lokasi…"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                />
-              </label>
+              <div className={styles.searchSlot}>
+                <SearchField ariaLabel="Cari titik" placeholder="Cari sumur, gedung, atau lokasi..." value={query} onChange={setQuery} onClear={() => setQuery("")} />
+              </div>
               <div className={styles.filters} aria-label="Filter koneksi">
                 {[
                   ["all", "Semua"],
@@ -191,9 +192,9 @@ export function MapExplorer({
                     )}
                   </span>
                   <span>
-                    <strong>{w.name}</strong>
+                    <strong translate="no">{w.name}</strong>
                     <small>
-                      {w.code} · {w.area}
+                      <span translate="no">{w.code} · {w.area}</span>
                     </small>
                   </span>
                   <span
@@ -230,7 +231,7 @@ export function MapExplorer({
                           ? "Terputus"
                           : "Terhubung"}
                   </span>
-                  <span>Lihat detail →</span>
+                  <span><span className={styles.desktopDetail}>Lihat detail →</span><span className={styles.mobileDetail}>Lihat detail <ChevronRight size={16} aria-hidden="true" /></span></span>
                 </span>
               </button>
             ))}

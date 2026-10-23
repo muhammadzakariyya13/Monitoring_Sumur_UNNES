@@ -1,18 +1,20 @@
 import type { Metadata, Viewport } from "next";
+import { UiPreferencesProvider } from "@/components/ui-preferences";
 import { AuthProvider } from "@/components/auth";
 import "./globals.css";
+import "./theme.css";
 import "@/components/ui.css";
 import "@/components/dashboard.css";
 export const metadata: Metadata = {
-  title: "Tirta UNNES · Monitoring Air",
-  description: "Monitoring penggunaan air sumur Universitas Negeri Semarang",
+  title: "SIMARA — Sistem Informasi Monitoring Air",
+  description: "SIMARA — Sistem Informasi Monitoring Air Universitas Negeri Semarang",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    title: "Tirta UNNES",
+    title: "SIMARA",
     statusBarStyle: "default",
   },
-  icons: { icon: "/icon.svg", apple: "/icon-192.png" },
+  icons: { icon: { url: "/logo-simara.svg", type: "image/svg+xml" }, apple: "/icon-192.png" },
 };
 export const viewport: Viewport = {
   themeColor: "#082f55",
@@ -26,9 +28,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id">
+    <html lang="id" suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: `try{var p=JSON.parse(localStorage.getItem('simara-ui-preferences')||'{}');document.documentElement.dataset.theme=p.theme==='dark'?'dark':'light';document.documentElement.lang=p.language==='en'?'en':'id'}catch{}` }} /></head>
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <UiPreferencesProvider><AuthProvider>{children}</AuthProvider></UiPreferencesProvider>
       </body>
     </html>
   );

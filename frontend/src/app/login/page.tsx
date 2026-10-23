@@ -1,4 +1,6 @@
 "use client";
+import Image from "next/image";
+import { useUiCopy } from "@/components/use-ui-copy";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
@@ -6,6 +8,7 @@ import { useAuth } from "@/components/auth";
 import { isUnnesEmail, supabase } from "@/lib/supabase";
 import styles from "./login.module.css";
 export default function Login() {
+  const { localize } = useUiCopy();
   const { user, ready, enterDemo } = useAuth();
   const router = useRouter();
   const [message, setMessage] = useState("");
@@ -72,31 +75,35 @@ export default function Login() {
       setBusy(false);
     }
   }
-  return (
+  return localize(
     <main className={styles.page}>
       <section className={styles.layout}>
         <aside className={styles.brand}>
-          <div><strong>TIRTA UNNES</strong><span className={styles.accent} /></div>
+          <div className={styles.logo} role="img" aria-label="SIMARA — Sistem Informasi Monitoring Air">
+            <Image className={styles.symbol} src="/logo-simara-putih.svg" width={621} height={856} alt="" priority />
+            <Image className={styles.wordmark} src="/tulisan-simara-putih.svg" width={1310} height={223} alt="" priority />
+          </div>
           <div className={styles.story}>
-            <h1>Monitoring air kampus dalam satu sistem.</h1>
-            <p>Pantau penggunaan air dan riwayat pemakaian melalui TIRTA UNNES.</p>
+            <h1>Sistem Informasi <span>Monitoring Air.</span></h1>
+            <p>Pantau penggunaan air, dan riwayat pemakaian melalui SIMARA.</p>
           </div>
           <small>Universitas Negeri Semarang</small>
         </aside>
         <header className={styles.mobile}>
-          <strong>TIRTA UNNES</strong>
-          <span className={styles.accent} />
-          <p>MONITORING AIR KAMPUS</p>
+          <Image className={styles.mobileLogo} src="/logo-simar-lengkap-putih.svg" width={1339} height={1360} alt="SIMARA — Sistem Informasi Monitoring Air" priority />
+          <svg className={styles.mobileWave} viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path d="M0 18C95 55 235-12 400 16V40H0Z" fill="white" />
+          </svg>
         </header>
         <section className={styles.panel}>
           <div className={styles.content}>
             <div className={styles.heading}>
               <h2>{reset ? "Lupa sandi" : "Selamat datang"}</h2>
-              <p>{reset ? "Masukkan email UNNES untuk menerima tautan reset." : "Masuk menggunakan akun UNNES Anda."}</p>
+              <p>{reset ? "Masukkan email Anda untuk menerima tautan reset." : "Masuk menggunakan akun Anda."}</p>
             </div>
             <form className={styles.form} onSubmit={submit}>
-              <label htmlFor="email">Email UNNES</label>
-              <input id="email" type="email" autoComplete="username" placeholder="nama@unnes.id" required value={email} onChange={e => setEmail(e.target.value)} />
+              <label htmlFor="email">Email</label>
+              <input id="email" type="email" autoComplete="username" placeholder="Masukkan email" required value={email} onChange={e => setEmail(e.target.value)} />
               {!reset && <>
                 <div className={styles.labelRow}><label htmlFor="password">Password</label><button type="button" className={styles.link} disabled={busy} onClick={() => { setReset(true); setMessage(""); setPassword(""); }}>Lupa sandi?</button></div>
                 <div className={styles.password}>
@@ -104,7 +111,7 @@ export default function Login() {
                   <button type="button" aria-label={visible ? "Sembunyikan password" : "Tampilkan password"} aria-pressed={visible} onClick={() => setVisible(!visible)}>{visible ? <EyeOff size={18}/> : <Eye size={18}/>}</button>
                 </div>
               </>}
-              <button className="primary" disabled={busy}>{busy ? "Memproses…" : reset ? "Kirim tautan reset" : "Masuk"}</button>
+              <button className={`primary ${styles.submit}`} disabled={busy}>{busy ? "Memproses…" : reset ? "Kirim tautan reset" : "Masuk"}</button>
               {reset && <button type="button" className={styles.link} disabled={busy} onClick={() => { setReset(false); setMessage(""); }}>Kembali ke login</button>}
             </form>
             <div className={styles.separator}>atau masuk dengan</div>
@@ -140,6 +147,7 @@ export default function Login() {
           </div>
         </section>
       </section>
+      <p className={styles.credit}>Developed by <strong>Hans Elektronik Team</strong></p>
     </main>
   );
 }

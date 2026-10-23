@@ -11,8 +11,9 @@ import {
 import { createPortal } from "react-dom";
 import { Check, ChevronDown } from "lucide-react";
 import styles from "./custom-select.module.css";
+import { useUiCopy } from "./use-ui-copy";
 
-type Option = { value: string; label: string };
+type Option = { value: string; label: string; translate?: boolean };
 type Props = {
   value: string;
   options: Option[];
@@ -20,6 +21,7 @@ type Props = {
   ariaLabel: string;
   disabled?: boolean;
   placeholder?: string;
+  compact?: boolean;
 };
 
 export function CustomSelect({
@@ -29,7 +31,9 @@ export function CustomSelect({
   ariaLabel,
   disabled = false,
   placeholder = "Pilih…",
+  compact = false,
 }: Props) {
+  const { uiText } = useUiCopy();
   const id = useId();
   const trigger = useRef<HTMLButtonElement>(null);
   const menu = useRef<HTMLDivElement>(null);
@@ -65,7 +69,7 @@ export function CustomSelect({
     const desired = Math.min(260, options.length * 44 + 10);
     const flip = below < desired && above > below;
     const height = Math.min(desired, flip ? above : below);
-    const width = Math.min(Math.max(rect.width, 180), rightEdge - leftEdge);
+    const width = Math.min(Math.max(rect.width, compact ? 0 : 180), rightEdge - leftEdge);
     setPosition({
       left: Math.max(leftEdge, Math.min(rect.left, rightEdge - width)),
       top: Math.max(
@@ -78,7 +82,7 @@ export function CustomSelect({
       width,
       maxHeight: height,
     });
-  }, [options.length]);
+  }, [options.length, compact]);
 
   function show(index = Math.max(0, selected)) {
     if (disabled || !options.length) return;
@@ -193,7 +197,7 @@ export function CustomSelect({
         ref={trigger}
         type="button"
         role="combobox"
-        className={styles.trigger}
+        className={`${styles.trigger}${compact ? ` ${styles.compact}` : ""}`}
         aria-label={ariaLabel}
         aria-expanded={expanded}
         aria-haspopup="listbox"
@@ -204,7 +208,7 @@ export function CustomSelect({
         onBlur={() => setOpen(false)}
         onClick={() => (expanded ? setOpen(false) : show())}
       >
-        <span>{options[selected]?.label ?? placeholder}</span>
+        <span>{options[selected]?.label ?? uiText(placeholder)}</span>
         <ChevronDown size={16} aria-hidden="true" />
       </button>
       {expanded &&
@@ -214,7 +218,7 @@ export function CustomSelect({
             id={id}
             role="listbox"
             aria-label={ariaLabel}
-            className={styles.menu}
+            className={`${styles.menu}${compact ? ` ${styles.compact}` : ""}`}
             style={position}
           >
             {options.map((option, index) => (

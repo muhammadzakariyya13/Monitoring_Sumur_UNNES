@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState, type FormEvent } from "react";
+import { useUiCopy } from "./use-ui-copy";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { supabase } from "@/lib/supabase";
 import { UsageLimitSettings } from "./usage-limit-settings";
 import { getDailyUsage } from "@/lib/usage-limits";
@@ -33,6 +34,23 @@ const blank = {
   occupants: null as number | null,
   active: true,
 };
+type LocationDraft = Omit<
+  typeof blank,
+  "occupants" | "latitude" | "longitude"
+> & {
+  id?: string;
+  occupants: string;
+  latitude: string;
+  longitude: string;
+};
+function editable(row: typeof blank & { id?: string }): LocationDraft {
+  return {
+    ...row,
+    occupants: row.occupants == null ? "" : String(row.occupants),
+    latitude: String(row.latitude),
+    longitude: String(row.longitude),
+  };
+}
 
 export function AdminView({
   page,
@@ -47,6 +65,7 @@ export function AdminView({
   preview?: boolean;
   onPreviewSave?: (row: LocationRow) => void;
 }) {
+  const { localize, locale, uiText } = useUiCopy();
   const [storedLocations, setLocations] = useState<LocationRow[]>([]);
   const locations: LocationRow[] = preview
     ? (snapshot?.locations ?? []).map((w) => ({
@@ -64,10 +83,9 @@ export function AdminView({
       }))
     : storedLocations;
   const [type, setType] = useState("all");
-  const [draft, setDraft] = useState<(typeof blank & { id?: string }) | null>(
-    null,
-  );
+  const [draft, setDraft] = useState<LocationDraft | null>(null);
   const [busy, setBusy] = useState(false);
+  const saving = useRef(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   useEffect(() => {
@@ -90,29 +108,62 @@ export function AdminView({
       live = false;
     };
   }, [page, preview]);
-  async function save(e: FormEvent) {
+  async function save(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if ((!preview && !supabase) || !draft) return;
+    if ((!preview && !supabase) || !draft || saving.current) return;
+    const form = e.currentTarget;
+    function reject(field: string, message: string) {
+      setError(message);
+      const input = form.elements.namedItem(field) as HTMLInputElement | null;
+      input?.setCustomValidity(uiText(message));
+      input?.reportValidity();
+    }
+    const occupants =
+      draft.occupants.trim() === "" ? null : Number(draft.occupants);
+    const latitude = Number(draft.latitude),
+      longitude = Number(draft.longitude);
     if (
       draft.type === "BUILDING" &&
-      draft.occupants !== null &&
-      (!Number.isInteger(draft.occupants) ||
-        draft.occupants < 0 ||
-        draft.occupants > 2147483647)
+      occupants !== null &&
+      (!/^\d+$/.test(draft.occupants) ||
+        !Number.isInteger(occupants) ||
+        occupants < 0 ||
+        occupants > 2147483647)
     ) {
-      setError(
+      reject(
+        "occupants",
         "Jumlah pegawai harus berupa bilangan bulat antara 0 dan 2.147.483.647. Kosongkan jika belum tersedia.",
       );
       return;
     }
+    const decimal = /^-?(?:\d+(?:\.\d*)?|\.\d+)$/;
+    if (
+      !decimal.test(draft.latitude) ||
+      !Number.isFinite(latitude) ||
+      latitude < -90 ||
+      latitude > 90
+    ) {
+      reject("latitude", "Latitude harus berupa angka antara -90 dan 90.");
+      return;
+    }
+    if (
+      !decimal.test(draft.longitude) ||
+      !Number.isFinite(longitude) ||
+      longitude < -180 ||
+      longitude > 180
+    ) {
+      reject("longitude", "Longitude harus berupa angka antara -180 dan 180.");
+      return;
+    }
+    saving.current = true;
     setBusy(true);
     setError("");
     setMessage("");
     const record = {
       ...(draft.id ? { id: draft.id } : {}),
       type: draft.type,
-      latitude: draft.latitude,
-      longitude: draft.longitude,
+      latitude,
+      longitude,
       active: draft.active,
       ...(draft.type === "WELL"
         ? { daily_usage_limit: null, limit_notification_enabled: false }
@@ -120,7 +171,7 @@ export function AdminView({
       name: draft.name.trim(),
       code: draft.code.trim(),
       area: draft.area.trim(),
-      occupants: draft.type === "WELL" ? null : draft.occupants,
+      occupants: draft.type === "WELL" ? null : occupants,
     };
     try {
       if (preview) {
@@ -158,20 +209,19 @@ export function AdminView({
         "Titik belum tersimpan. Pastikan kode unik, data valid, dan akses Admin tersedia.",
       );
     } finally {
+      saving.current = false;
       setBusy(false);
     }
   }
   if (page === "users") return <AdminUsers preview={preview} />;
-  return (
+  return localize(
     <section className={styles.page}>
       <div className="history-intro">
         <div>
-          <h2>
-            {page === "locations" ? "Kelola titik monitoring" : "Pengguna"}
-          </h2>
+          <h2>{page === "locations" ? "Titik Monitoring" : "Pengguna"}</h2>
           <p>
             {page === "locations"
-              ? "Kelola lokasi sumur dan gedung untuk trial."
+              ? "Kelola lokasi sumur dan gedung."
               : "Kelola akses Viewer dan Admin."}
           </p>
         </div>
@@ -180,7 +230,7 @@ export function AdminView({
             className="primary"
             onClick={() => {
               setError("");
-              setDraft({ ...blank });
+              setDraft(editable(blank));
             }}
           >
             <Plus size={17} aria-hidden="true" />
@@ -221,21 +271,21 @@ export function AdminView({
               onClose={() => setDraft(null)}
               busy={busy}
             >
-              <form className={styles.form} onSubmit={save}>
+              <form className={`${styles.form} ${styles.locationForm}`} onSubmit={save}>
                 <fieldset disabled={busy}>
                   <legend>Informasi titik</legend>
                   <div className={styles.fields}>
                     <label>
                       Jenis
                       <CustomSelect
+                        compact
                         ariaLabel="Jenis"
                         value={draft.type}
                         onChange={(value) =>
                           setDraft({
                             ...draft,
                             type: value as MonitoringType,
-                            occupants:
-                              value === "WELL" ? null : draft.occupants,
+                            occupants: value === "WELL" ? "" : draft.occupants,
                           })
                         }
                         options={[
@@ -267,16 +317,18 @@ export function AdminView({
                       <label>
                         Jumlah pegawai
                         <input
-                          type="number"
-                          min={0}
-                          max={2147483647}
-                          step={1}
+                          type="text"
+                          name="occupants"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
                           aria-label="Jumlah pegawai"
                           aria-describedby="occupants-help"
-                          value={draft.occupants ?? ""}
+                          value={draft.occupants}
                           onInvalid={(e) =>
                             e.currentTarget.setCustomValidity(
-                              "Jumlah pegawai harus bilangan bulat 0 atau lebih, maksimal 2.147.483.647.",
+                              uiText(
+                                "Jumlah pegawai harus bilangan bulat 0 atau lebih, maksimal 2.147.483.647.",
+                              ),
                             )
                           }
                           onInput={(e) => e.currentTarget.setCustomValidity("")}
@@ -284,10 +336,7 @@ export function AdminView({
                           onChange={(e) =>
                             setDraft({
                               ...draft,
-                              occupants:
-                                e.target.value === ""
-                                  ? null
-                                  : Number(e.target.value),
+                              occupants: e.target.value,
                             })
                           }
                         />
@@ -306,15 +355,15 @@ export function AdminView({
                       Latitude
                       <input
                         required
-                        type="number"
-                        step="any"
-                        min={-90}
-                        max={90}
+                        type="text"
+                        name="latitude"
+                        inputMode="decimal"
+                        onInput={(e) => e.currentTarget.setCustomValidity("")}
                         value={draft.latitude}
                         onChange={(e) =>
                           setDraft({
                             ...draft,
-                            latitude: Number(e.target.value),
+                            latitude: e.target.value,
                           })
                         }
                       />
@@ -323,15 +372,15 @@ export function AdminView({
                       Longitude
                       <input
                         required
-                        type="number"
-                        step="any"
-                        min={-180}
-                        max={180}
+                        type="text"
+                        name="longitude"
+                        inputMode="decimal"
+                        onInput={(e) => e.currentTarget.setCustomValidity("")}
                         value={draft.longitude}
                         onChange={(e) =>
                           setDraft({
                             ...draft,
-                            longitude: Number(e.target.value),
+                            longitude: e.target.value,
                           })
                         }
                       />
@@ -358,7 +407,7 @@ export function AdminView({
                     Batal
                   </button>
                   <button className="primary" disabled={busy}>
-                    Simpan
+                    {busy ? "Menyimpan..." : "Simpan"}
                   </button>
                 </div>
               </form>
@@ -383,9 +432,13 @@ export function AdminView({
                     </span>
                   </div>
                   <div>
-                    <h3>{r.name}</h3>
-                    <p className={styles.code}>{r.code}</p>
-                    <p className={styles.area}>{r.area}</p>
+                    <h3 translate="no">{r.name}</h3>
+                    <p className={styles.code} translate="no">
+                      {r.code}
+                    </p>
+                    <p className={styles.area} translate="no">
+                      {r.area}
+                    </p>
                   </div>
                   {r.type === "BUILDING" && (
                     <dl className={styles.facts}>
@@ -409,7 +462,7 @@ export function AdminView({
                               Belum ditetapkan
                             </span>
                           ) : (
-                            `${r.daily_usage_limit.toLocaleString("id-ID", { maximumFractionDigits: 3 })} m³`
+                            `${r.daily_usage_limit.toLocaleString(locale, { maximumFractionDigits: 3 })} m³`
                           )}
                         </dd>
                       </div>
@@ -457,11 +510,11 @@ export function AdminView({
                       />
                     )}
                     <button
-                      className="secondary"
+                      className={styles.editAction}
                       aria-label={`Edit ${r.name}`}
                       onClick={() => {
                         setError("");
-                        setDraft(r);
+                        setDraft(editable(r));
                       }}
                     >
                       <Pencil size={16} aria-hidden="true" />
@@ -478,6 +531,6 @@ export function AdminView({
           </div>
         </>
       ) : null}
-    </section>
+    </section>,
   );
 }

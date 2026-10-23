@@ -65,7 +65,7 @@ export function createReport(input: ReportInput, createdAt = new Date()) {
     groups,
     details,
     mode,
-    filename: `TIRTA_UNNES_Laporan_Air_${input.start}${input.end === input.start ? "" : `_${input.end}`}`,
+    filename: `SIMARA_Laporan_Air_${input.start}${input.end === input.start ? "" : `_${input.end}`}`,
   };
 }
 export type HistoryReport = ReturnType<typeof createReport>;

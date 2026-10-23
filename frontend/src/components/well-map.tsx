@@ -1,4 +1,5 @@
 "use client";
+import { useUiCopy } from "./use-ui-copy";
 import { useEffect, useState } from "react";
 import {
   MapContainer,
@@ -68,6 +69,7 @@ export default function WellMap({
   onSelect: (id: string) => void;
   detail?: boolean;
 }) {
+  const { uiText } = useUiCopy();
   const [failed, setFailed] = useState(false);
   return (
     <div className="map-wrap">
@@ -92,7 +94,7 @@ export default function WellMap({
               eventHandlers={{ click: () => onSelect(w.id) }}
             >
               <Tooltip permanent={detail && w.id === selected}>
-                {w.name} - Gedung
+                {w.name} - {uiText("Gedung")}
               </Tooltip>
             </Marker>
           ) : (
@@ -109,17 +111,16 @@ export default function WellMap({
               eventHandlers={{ click: () => onSelect(w.id) }}
             >
               <Tooltip direction="top" permanent={detail && w.id === selected}>
-                {w.name} · {w.flow === null ? "Terputus" : "Terhubung"} · lokasi
-                contoh
+                {w.name} · {uiText(w.flow === null ? "Terputus" : "Terhubung")} {uiText("· lokasi contoh")}
               </Tooltip>
             </CircleMarker>
           ),
         )}
       </MapContainer>
-      <span className="map-label">Titik contoh · bukan lokasi titik asli</span>
+      <span className="map-label">{uiText("Titik contoh · bukan lokasi titik asli")}</span>
       {failed && (
         <span className="map-error">
-          Peta dasar tidak tersedia. Pilih titik melalui daftar.
+          {uiText("Peta dasar tidak tersedia. Pilih titik melalui daftar.")}
         </span>
       )}
     </div>

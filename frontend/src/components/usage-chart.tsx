@@ -1,4 +1,5 @@
 "use client";
+import { useUiCopy } from "./use-ui-copy";
 import {
   Area,
   AreaChart,
@@ -13,13 +14,14 @@ export function UsageChart({
 }: {
   data: { label: string; volume: number }[];
 }) {
+  const { uiText, locale } = useUiCopy();
   if (!data.length)
-    return <div className="empty">Belum ada data pada rentang ini.</div>;
+    return <div className="empty">{uiText("Belum ada data pada rentang ini.")}</div>;
   return (
     <div
       className="chart"
       role="img"
-      aria-label="Grafik volume penggunaan dalam meter kubik. Nilai rinci tersedia pada tabel riwayat."
+      aria-label={uiText("Grafik volume penggunaan dalam meter kubik. Nilai rinci tersedia pada tabel riwayat.")}
     >
       <ResponsiveContainer width="100%" height="100%" minWidth={0}>
         <AreaChart
@@ -35,26 +37,26 @@ export function UsageChart({
           <CartesianGrid
             strokeDasharray="3 7"
             vertical={false}
-            stroke="#e7edf3"
+            stroke="var(--ui-border)"
           />
           <XAxis
             dataKey="label"
             tickLine={false}
             axisLine={false}
             minTickGap={24}
-            tick={{ fontSize: 11, fill: "#7a8796" }}
+            tick={{ fontSize: 11, fill: "var(--ui-muted)" }}
           />
           <YAxis
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 11, fill: "#7a8796" }}
+            tick={{ fontSize: 11, fill: "var(--ui-muted)" }}
           />
           <Tooltip
             formatter={(value) => [
-              `${Number(value).toLocaleString("id-ID")} m³`,
+              `${Number(value).toLocaleString(locale)} m³`,
               "Volume",
             ]}
-            contentStyle={{ borderRadius: 12, borderColor: "#e0e8ee" }}
+            contentStyle={{ borderRadius: 12, borderColor: "var(--ui-border)", backgroundColor: "var(--ui-elevated)", color: "var(--ui-text)" }}
           />
           <Area
             type="monotone"

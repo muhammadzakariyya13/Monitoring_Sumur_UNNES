@@ -1,4 +1,5 @@
 "use client";
+import { useUiCopy } from "@/components/use-ui-copy";
 import { useEffect, useState } from "react";
 import { isUnnesEmail, supabase } from "@/lib/supabase";
 import styles from "../../login/login.module.css";
@@ -14,6 +15,7 @@ async function verifyRecovery() {
   if (userError || !isUnnesEmail(data.user?.email) || !data.user?.email_confirmed_at) throw new Error("Akun UNNES belum terverifikasi.");
 }
 export default function ResetPassword() {
+  const { localize } = useUiCopy();
   const [ready, setReady] = useState(false);
   const [message, setMessage] = useState("");
   const [password, setPassword] = useState("");
@@ -39,7 +41,7 @@ export default function ResetPassword() {
     } catch { setMessage("Password belum dapat diperbarui. Periksa kebijakan sandi dan coba lagi."); }
     finally { setBusy(false); }
   }
-  return <main className={styles.page}><section className={styles.panel}><div className={styles.content}>
+  return localize(<main className={styles.page}><section className={styles.panel}><div className={styles.content}>
     <div className={styles.heading}><h1>Reset password</h1><p>Gunakan password baru minimal 12 karakter.</p></div>
     {!ready && !message && <p role="status">Memverifikasi tautan…</p>}
     {ready && !done && <form className={styles.form} onSubmit={save}>
@@ -49,5 +51,5 @@ export default function ResetPassword() {
     </form>}
     {message && <p className="notice" role={done ? "status" : "alert"}>{message}</p>}
     <a className={styles.demo} href="/login/">Kembali ke login</a>
-  </div></section></main>;
+  </div></section></main>);
 }

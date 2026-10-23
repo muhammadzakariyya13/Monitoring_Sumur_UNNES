@@ -3,7 +3,7 @@ import { SplashScreen } from "./splash-screen";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { usePathname, useRouter } from "next/navigation";
-import { Droplets } from "lucide-react";
+import Image from "next/image";
 import { domainMessage, isUnnesEmail, supabase } from "@/lib/supabase";
 type AuthState = {
   user: User | null;
@@ -31,16 +31,11 @@ function storeSession(key: string, value: string | null) {
     // Browser dapat menolak storage; pratinjau tetap tersedia.
   }
 }
-export function Brand() {
+export function Brand({ tone = "light" }: { tone?: "light" | "dark" }) {
   return (
-    <div className="brand">
-      <span className="brand-icon">
-        <Droplets size={26} />
-      </span>
-      <div>
-        TIRTA <strong>UNNES</strong>
-        <small>MONITORING AIR KAMPUS</small>
-      </div>
+    <div className="brand" role="img" aria-label="SIMARA — Sistem Informasi Monitoring Air">
+      <Image className="brand-symbol" src={tone === "dark" ? "/logo-simara-putih.svg" : "/logo-simara.svg"} width={621} height={856} alt="" />
+      <Image className="brand-wordmark" src={tone === "dark" ? "/tulisan-simara-putih.svg" : "/tulisan-simara.svg"} width={1310} height={223} alt="" />
     </div>
   );
 }

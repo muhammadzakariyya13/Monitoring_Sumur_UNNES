@@ -1,5 +1,6 @@
 "use client";
 import { useState, type FormEvent } from "react";
+import { useUiCopy } from "./use-ui-copy";
 import { supabase } from "@/lib/supabase";
 import { Settings2 } from "lucide-react";
 import { MonitoringDialog, MonitoringSwitch } from "./monitoring-dialog";
@@ -21,6 +22,7 @@ export function UsageLimitSettings({
   actual: number | null;
   onSaved: (limit: number | null, enabled: boolean) => void;
 }) {
+  const { localize } = useUiCopy();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState("");
   const [notification, setNotification] = useState(false);
@@ -71,7 +73,7 @@ export function UsageLimitSettings({
       setBusy(false);
     }
   }
-  return (
+  return localize(
     <div className={styles.settings}>
       <button
         className="secondary"

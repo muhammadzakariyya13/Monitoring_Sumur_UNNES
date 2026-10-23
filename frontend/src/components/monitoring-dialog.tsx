@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
+import { useUiCopy } from "./use-ui-copy";
 import styles from "./monitoring-admin.module.css";
 
 export function MonitoringDialog({
@@ -16,6 +17,7 @@ export function MonitoringDialog({
   onClose: () => void;
   busy?: boolean;
 }) {
+  const { uiText } = useUiCopy();
   const dialog = useRef<HTMLDialogElement>(null);
   const heading = useId();
   useEffect(() => {
@@ -42,13 +44,13 @@ export function MonitoringDialog({
     >
       <header className={styles.dialogHeader}>
         <div>
-          <h2 id={heading}>{title}</h2>
-          {subtitle && <p>{subtitle}</p>}
+          <h2 id={heading}>{uiText(title)}</h2>
+          {subtitle && <p>{uiText(subtitle)}</p>}
         </div>
         <button
           type="button"
           className="secondary"
-          aria-label="Tutup dialog"
+          aria-label={uiText("Tutup dialog")}
           disabled={busy}
           onClick={onClose}
         >
@@ -71,16 +73,17 @@ export function MonitoringSwitch({
   onChange: (value: boolean) => void;
   disabled?: boolean;
 }) {
+  const { uiText } = useUiCopy();
   return (
     <label className={styles.switchRow}>
       <span>
-        {label}
-        <small>{checked ? "Aktif" : "Nonaktif"}</small>
+        {uiText(label)}
+        <small>{uiText(checked ? "Aktif" : "Nonaktif")}</small>
       </span>
       <input
         type="checkbox"
         role="switch"
-        aria-label={label}
+        aria-label={uiText(label)}
         aria-checked={checked}
         checked={checked}
         disabled={disabled}

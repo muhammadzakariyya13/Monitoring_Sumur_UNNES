@@ -1,31 +1,16 @@
-.brand {
-  display: flex;
-  gap: 11px;
-  align-items: center;
-  font-size: 20px;
-  font-weight: 400;
-  letter-spacing: 1px;
-  color: var(--navy);
+.brand { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 210px; padding: 10px 0; background: transparent; }
+.brand-symbol { display: block; width: 30px; height: auto; flex-shrink: 0; }
+.brand-wordmark { display: block; width: min(125px, 100%); min-width: 0; height: auto; }
+.sidebar.collapsed .brand, .sidebar[data-collapsed="true"] .brand { width: fit-content; }
+.sidebar.collapsed .brand-wordmark, .sidebar[data-collapsed="true"] .brand-wordmark { display: none; }
+.mobile-brand { display: none; }
+@media (max-width: 680px) {
+  .topbar .mobile-brand { display: flex; margin-left: auto; flex-shrink: 0; }
+  .mobile-brand .brand { width: auto; padding: 5px; gap: 6px; }
+  .mobile-brand .brand-symbol { width: 20px; }
+  .mobile-brand .brand-wordmark { width: 65px; }
 }
-.brand strong {
-  font-weight: 800;
-}
-.brand small {
-  display: block;
-  font-size: 12px;
-  letter-spacing: 0.3px;
-  margin-top: 4px;
-}
-.brand-icon {
-  flex-shrink: 0;
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 46px;
-  border-radius: 12px;
-  background: var(--yellow);
-  color: var(--navy);
-}
+@media (max-width: 480px) { .mobile-brand .brand-wordmark { display: none; } }
 .primary,
 .secondary {
   border: 1px solid var(--border);
@@ -54,7 +39,7 @@
   background: #ecf2f7;
 }
 .text-button {
-  color: var(--blue);
+  color: var(--ui-accent);
   background: none;
   border: 0;
   padding: 0;
@@ -78,12 +63,27 @@
 .notice {
   padding: 12px 15px;
   border-radius: 8px;
-  background: #fff5df;
-  color: #8a6520 !important;
+  background: var(--ui-warning-surface);
+  color: var(--ui-warning);
   font-size: 12px;
   line-height: 1.7;
   margin: 15px 0;
 }
+.ghost-icon {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ui-muted);
+}
+.ghost-icon:hover { background: var(--ui-soft); color: var(--ui-accent); }
+.ghost-icon:active { background: var(--ui-elevated); }
+.ghost-icon:focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 2px; }
 .empty {
   min-height: 210px;
   display: grid;

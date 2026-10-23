@@ -1,8 +1,8 @@
 .page {
   min-width: 0;
 }
-.page button,
-.dialog button {
+.page button:not([role="combobox"]),
+.dialog button:not([role="combobox"]) {
   min-height: 44px;
   display: inline-flex;
   align-items: center;
@@ -46,12 +46,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #147fa9;
+  color: var(--ui-accent);
   font-size: 11px;
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
+.kind > svg { box-sizing: content-box; padding: 6px; border-radius: 9px; background: var(--ui-accent-surface); }
+.editAction { min-height: 44px; padding: 10px 14px; border: 1px solid var(--ui-border); border-radius: 12px; background: var(--ui-elevated); color: var(--ui-text); font: inherit; font-size: 14px; font-weight: 600; }
 .badge {
   display: inline-flex;
   align-items: center;
@@ -85,7 +87,7 @@
 .area {
   font-size: 12px;
   line-height: 1.7;
-  color: #526980;
+  color: var(--ui-muted);
   margin: 0;
 }
 .facts {
@@ -190,7 +192,7 @@
   letter-spacing: 0.08em;
   font-weight: 700;
   margin-bottom: 16px;
-  color: #526980;
+  color: var(--ui-muted);
 }
 .fields {
   display: grid;
@@ -209,18 +211,21 @@
   min-width: 0;
   min-height: 46px;
   border: 1px solid var(--border);
-  background: #f8fafc;
+  background: var(--ui-input);
   border-radius: 10px;
   padding: 10px 12px;
   font: inherit;
-  font-size: 16px;
-  color: #082f55;
+  font-size: 14px;
+  color: var(--ui-text);
 }
 .form small {
   font-size: 11px;
   line-height: 1.7;
-  color: #526980;
+  color: var(--ui-muted);
 }
+.form input::placeholder { color: var(--ui-muted); opacity: 1; }
+.form input:focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 2px; box-shadow: none; }
+.form [role="alert"] { margin: 0; color: var(--ui-danger); font-size: 13px; line-height: 1.6; }
 .form .switchRow {
   display: flex;
   align-items: center;
@@ -235,21 +240,30 @@
 .switchRow input {
   appearance: none;
   flex-shrink: 0;
-  width: 46px;
-  height: 28px;
+  width: 44px;
+  height: 44px;
   border-radius: 20px;
-  background: #a1afbd;
+  background: transparent;
   border: 0;
   cursor: pointer;
   margin: 8px 0;
   position: relative;
   transition: background 0.18s;
 }
+.switchRow input::after {
+  content: "";
+  position: absolute;
+  inset: 9px 0;
+  border-radius: 26px;
+  background: #cbd5e1;
+  transition: background .18s;
+}
 .switchRow input::before {
   content: "";
   position: absolute;
-  top: 4px;
-  left: 4px;
+  top: 12px;
+  left: 3px;
+  z-index: 1;
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -257,8 +271,10 @@
   transition: transform 0.18s;
 }
 .switchRow input:checked {
-  background: #147fa9;
+  background: transparent;
 }
+.switchRow input:checked::after { background: #1268b0; }
+:global(html[data-theme="dark"]) .switchRow input:not(:checked)::after { background: #64748b; }
 .switchRow input:checked::before {
   transform: translateX(18px);
 }
@@ -273,8 +289,8 @@
   padding-top: 18px;
   border-top: 1px solid var(--border);
   position: sticky;
-  bottom: -24px;
-  background: white;
+  bottom: 0;
+  background: var(--ui-surface);
   padding-bottom: 12px;
 }
 @media (hover: hover) {
@@ -313,7 +329,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
   .actions {
-    bottom: -20px;
+    bottom: 0;
   }
   .actions button {
     flex: 1;
@@ -321,14 +337,69 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .switchRow input,
-  .switchRow input::before {
+  .switchRow input::before,
+  .switchRow input::after {
     transition: none;
   }
 }
 
 .page :global(.periods) button[aria-pressed="true"] { background: #082f55; color: white; border-radius: 10px; }
 @media (max-width: 640px) {
-  .page > :global(.history-intro) h2 { display: none; }
+  .page > :global(.history-intro) h2 { display: block; font-size: 17px; line-height: 1.5; }
   .page > :global(.history-intro) { margin-bottom: 12px; gap: 12px; }
   .page > :global(.history-intro) p { font-size: 12px; margin-top: 0; }
 }
+
+@media (max-width: 640px) {
+  .page > :global(.history-intro) p { font-size: 13px; line-height: 1.7; }
+  .page :global(.periods) { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; padding: 4px; border-radius: 12px; background: var(--ui-soft); gap: 4px; }
+  .page :global(.periods) button { min-height: 44px; font-size: 13px; border-radius: 10px; }
+  .page :global(.periods) button[aria-pressed="true"] { background: #06539f; }
+  .grid { gap: 12px; }
+  .card { padding: 16px; gap: 12px; border: 1px solid var(--ui-border); border-radius: 16px; box-shadow: none; }
+  .card h3 { font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
+  .kind, .badge, .code, .area { font-size: 12px; line-height: 1.6; }
+  .facts { gap: 8px; }
+  .facts dt { font-size: 12px; line-height: 1.6; }
+  .facts dd { font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+  .cardActions { flex-wrap: wrap; gap: 8px; }
+  .cardActions > button, .settings > button { min-height: 44px; font-size: 13px; border-radius: 12px; }
+  .page .cardActions .editAction { flex: 0 0 auto; margin-left: auto; padding: 8px 14px; border: 0; background: transparent; color: var(--ui-accent); }
+  .page .cardActions .editAction:hover { background: var(--ui-soft); }
+  .cardTop { gap: 8px; }
+  .facts { padding-top: 12px; }
+  .page > :global(.history-intro) { display: flex; flex-wrap: wrap; align-items: center; }
+  .page > :global(.history-intro) > div { display: block; flex: 1 1 160px; min-width: 0; }
+  .page > :global(.history-intro) > button { width: auto; margin-left: auto; min-height: 44px; padding: 10px 12px; font-size: 13px; border-radius: 12px; }
+  .dialog { max-height: calc(100dvh - 20px - env(safe-area-inset-top, 0px)); border-radius: 24px 24px 0 0; }
+  .dialogHeader { padding: 20px 18px; gap: 12px; }
+  .dialogHeader h2 { font-size: 18px; line-height: 1.5; }
+  .dialogHeader p { font-size: 13px; line-height: 1.6; }
+  .dialogHeader button { min-width: 44px; min-height: 44px; border-radius: 12px; }
+  .form { padding: 18px; }
+  .form label { font-size: 13px; line-height: 1.6; }
+  .form input:not([role="switch"]) { min-height: 46px; font-size: 16px; border-radius: 12px; }
+  .form small { font-size: 12px; line-height: 1.6; }
+  .form .switchRow { min-height: 52px; }
+  .actions { bottom: 0; gap: 10px; }
+  .actions button { min-height: 44px; font-size: 13px; border-radius: 12px; }
+}
+
+:global(html[data-theme="dark"]) :is(.card, .dialog, .dialogHeader, .form, .actions) { background: var(--ui-surface); color: var(--ui-text); border-color: var(--ui-border); }
+:global(html[data-theme="dark"]) :is(.card h3, .facts dd, .dialogHeader h2) { color: var(--ui-text); }
+:global(html[data-theme="dark"]) :is(.code, .area, .facts dt, .missing, .form small, .dialogHeader p, .form label) { color: var(--ui-muted); }
+:global(html[data-theme="dark"]) .badge { background: var(--ui-elevated); color: var(--ui-text); border-color: var(--ui-border); }
+:global(html[data-theme="dark"]) .form fieldset { border-color: var(--ui-border); }
+
+/* Keep the location form's final field and actions in one scroll flow. */
+.locationForm { row-gap: 20px; padding-bottom: 24px; }
+.locationForm .switchRow { min-height: 60px; padding-block: 8px; }
+.locationForm .switchRow input { margin: 0; }
+.locationForm .actions {
+  position: static;
+  margin: 0;
+  padding: 16px 0 0;
+  gap: 12px;
+  align-items: center;
+}
+.locationForm input, .locationForm .switchRow, .locationForm .actions { scroll-margin-block: 16px; }

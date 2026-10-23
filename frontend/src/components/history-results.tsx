@@ -1,4 +1,5 @@
 "use client";
+import { useUiCopy } from "./use-ui-copy";
 import { useState } from "react";
 import {
   Activity,
@@ -6,12 +7,12 @@ import {
   ChevronRight,
   Droplets,
   MapPin,
-  Search,
   TrendingUp,
 } from "lucide-react";
-import { aggregate, number, type Reading, type MonitoringLocation } from "@/lib/data";
+import { aggregate, type Reading, type MonitoringLocation } from "@/lib/data";
 import { BuildingUsage } from "./building-usage";
 import { UsageChart } from "./usage-chart";
+import { SearchField } from "./search-field";
 
 export function HistoryResults({
   readings,
@@ -30,6 +31,8 @@ export function HistoryResults({
   start: string;
   end: string;
 }) {
+  const { localize, number, uiText } = useUiCopy();
+  const locationLabel = selectedLocation ? location : uiText(location);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const days = aggregate(readings, "day");
@@ -44,7 +47,7 @@ export function HistoryResults({
   const pages = Math.max(1, Math.ceil(rows.length / 10));
   const current = Math.min(page, pages);
   const shown = rows.slice((current - 1) * 10, current * 10);
-  return (
+  return localize(
     <>
       <h2 className="history-summary-heading">Ringkasan penggunaan</h2>
       <section className="history-kpis" aria-label="Ringkasan riwayat">
@@ -99,7 +102,7 @@ export function HistoryResults({
               {start} — {end} · WIB
             </p>
           </div>
-          <span className="tag">{location}</span>
+          <span className="tag" translate="no">{locationLabel}</span>
         </div>
         <UsageChart data={series} />
       </section>
@@ -107,22 +110,13 @@ export function HistoryResults({
         <div className="panel-heading">
           <div>
             <h2>Data riwayat</h2>
-            <p>Rincian volume untuk {location.toLowerCase()}.</p>
+            <p>Rincian volume untuk <span translate="no">{locationLabel}</span>.</p>
           </div>
         </div>
         <div className="history-toolbar">
-          <label>
-            <Search size={17} />
-            <input
-              aria-label="Cari periode riwayat"
-              placeholder="Cari tanggal atau jam…"
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
-            />
-          </label>
+          <div className="history-search">
+            <SearchField ariaLabel="Cari periode riwayat" placeholder="Cari tanggal atau jam..." value={search} onChange={(value) => { setSearch(value); setPage(1); }} />
+          </div>
           <span aria-live="polite">{rows.length} periode</span>
         </div>
         <div
@@ -154,7 +148,7 @@ export function HistoryResults({
                       {r.key.length === 13 ? ":00" : ""}
                     </strong>
                   </td>
-                  <td data-label="Lokasi">{location}</td>
+                  <td data-label="Lokasi"><span translate="no">{locationLabel}</span></td>
                   <td data-label="Volume">
                     <strong>{number(r.volume, 3)} m³</strong>
                   </td>

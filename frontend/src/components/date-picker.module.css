@@ -1,0 +1,146 @@
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid var(--ui-border);
+  border-radius: 11px;
+  background: var(--ui-input);
+  color: var(--ui-text);
+  font: inherit;
+  font-size: 14px;
+}
+.trigger span {
+  min-width: 0;
+}
+.trigger svg {
+  flex-shrink: 0;
+  color: var(--ui-accent);
+}
+.dialog {
+  position: fixed;
+  inset: 0;
+  width: min(352px, calc(100vw - 24px));
+  max-height: calc(
+    100dvh - 24px - env(safe-area-inset-top, 0px) -
+      env(safe-area-inset-bottom, 0px)
+  );
+  overflow: auto;
+  margin: auto;
+  padding: 12px;
+  border: 1px solid var(--ui-border);
+  border-radius: 14px;
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  box-shadow: 0 12px 40px #082f5526;
+  font: inherit;
+}
+.dialog::backdrop {
+  background: #04132266;
+}
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.heading h2 {
+  margin: 0;
+  font-size: 15px;
+}
+.heading button,
+.navigation > button:not([role="combobox"]) {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ui-muted);
+}
+.navigation {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) 86px 32px;
+  align-items: center;
+  gap: 3px;
+  margin-bottom: 8px;
+}
+.navigation > button:not([role="combobox"]) {
+  width: 32px;
+}
+.weekdays,
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+.weekdays span {
+  padding: 7px 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--ui-muted);
+}
+.week button {
+  min-width: 0;
+  min-height: 40px;
+  border: 0;
+  border-radius: 10px;
+  padding: 0;
+  font: inherit;
+  font-size: 14px;
+  background: transparent;
+  color: var(--ui-text);
+}
+.week button[data-outside="true"] {
+  color: var(--ui-muted);
+}
+.week button[aria-current="date"] {
+  box-shadow: inset 0 0 0 1px var(--ui-accent);
+}
+.week button[aria-selected="true"] {
+  background: #1268b0;
+  color: #fff;
+}
+.dialog button:hover:not([aria-selected="true"]) {
+  background: var(--ui-soft);
+}
+.footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  border-top: 1px solid var(--ui-border);
+}
+.footer button {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ui-accent);
+  font: inherit;
+  font-size: 14px;
+}
+.trigger:focus-visible,
+.dialog button:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 1px;
+}
+@media (max-width: 340px) {
+  .trigger {
+    padding-inline: 8px;
+    font-size: 13px;
+  }
+  .navigation {
+    grid-template-columns: 28px minmax(0, 1fr) 80px 28px;
+  }
+  .navigation > button:not([role="combobox"]) {
+    width: 28px;
+  }
+}

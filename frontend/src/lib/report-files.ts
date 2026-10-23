@@ -4,13 +4,13 @@ const navy = "FF082F55";
 export async function excelReport(report: HistoryReport) {
   const { default: ExcelJS } = await import("exceljs");
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = "TIRTA UNNES";
+  workbook.creator = "SIMARA";
   const summary = workbook.addWorksheet("Ringkasan");
   summary.columns = [36, 24, 24, 24, 24].map((width) => ({ width }));
   const lines = [
     "UNIVERSITAS NEGERI SEMARANG",
     "LAPORAN PENGGUNAAN AIR",
-    "TIRTA UNNES",
+    "SIMARA",
     `Periode: ${report.period} | ${report.start} - ${report.end} (WIB)`,
     `Jenis titik: ${report.kind === "all" ? "Sumur dan Gedung" : report.kind === "WELL" ? "Sumur" : "Gedung"}`,
     `Lokasi monitoring: ${report.location}`,
@@ -111,7 +111,7 @@ export async function excelReport(report: HistoryReport) {
       printTitlesRow: `${header}:${header}`,
       printArea: `A1:${sheet === detail ? "G" : "E"}${sheet.rowCount}`,
     };
-    sheet.headerFooter = { oddFooter: "TIRTA UNNES | Halaman &P dari &N" };
+    sheet.headerFooter = { oddFooter: "SIMARA | Halaman &P dari &N" };
   }
   detail.autoFilter = { from: "A1", to: `G${Math.max(1, detail.rowCount)}` };
   return new Uint8Array(await workbook.xlsx.writeBuffer());
@@ -135,7 +135,7 @@ export async function pdfReport(report: HistoryReport) {
   doc.setTextColor(8, 47, 85);
   line("UNIVERSITAS NEGERI SEMARANG", 14, true);
   line("LAPORAN PENGGUNAAN AIR", 13, true);
-  line("TIRTA UNNES", 10, true);
+  line("SIMARA", 10, true);
   line(`Periode: ${report.period} | ${report.start} - ${report.end} (WIB)`);
   line(
     `Jenis: ${report.kind === "all" ? "Sumur dan Gedung" : report.kind === "WELL" ? "Sumur" : "Gedung"} | Lokasi: ${report.location}`,
@@ -202,7 +202,7 @@ export async function pdfReport(report: HistoryReport) {
     doc.setFontSize(8);
     doc.setTextColor(82, 105, 128);
     doc.text(
-      `TIRTA UNNES | ${report.illustrative ? "DATA CONTOH" : "Data monitoring"}`,
+      `SIMARA | ${report.illustrative ? "DATA CONTOH" : "Data monitoring"}`,
       14,
       287,
     );
