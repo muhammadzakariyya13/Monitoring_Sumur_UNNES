@@ -1221,6 +1221,28 @@ th {
 .management-hub button:hover { background: #f8fafc; }
 .management-hub button:focus-visible, .admin-bottom-nav button:focus-visible { outline: 3px solid #147fa9; outline-offset: -3px; }
 
+/* Kelola stays content-sized while its canvas covers short and tall viewports. */
+html:has(.management-mode) { background: var(--ui-background); }
+.app-shell:has(.management-mode) { min-height: 100dvh; background: var(--ui-background); }
+.admin-shell .app-main.management-mode { min-height: 100dvh; background: var(--ui-background); }
+.management-mode .management-hub { width: 100%; padding-block: 4px 12px; }
+.management-mode .management-hub > h2 { margin-bottom: 8px; font-size: 22px; line-height: 1.4; letter-spacing: -.35px; }
+.management-mode .management-hub > p { max-width: 480px; margin-bottom: 22px; font-size: 14px; line-height: 1.7; color: var(--ui-muted); }
+.admin-shell .management-mode .management-hub > button { min-height: 96px; margin-bottom: 12px; padding: 18px; gap: 14px; border: 1px solid var(--ui-border); border-radius: 16px; background: var(--ui-surface); color: var(--ui-text); box-shadow: 0 2px 8px #082f5505; }
+.management-mode .management-hub > button > span:not(.management-icon) { flex: 1; min-width: 0; }
+.management-mode .management-icon { width: 44px; height: 44px; border-radius: 13px; }
+.management-mode .management-icon svg { width: 22px; height: 22px; }
+.admin-shell .management-mode .management-hub strong { color: var(--ui-text); font-size: 16px; line-height: 1.5; font-weight: 600; }
+.admin-shell .management-mode .management-hub small { margin-top: 4px; font-size: 13px; line-height: 1.6; color: var(--ui-muted); }
+.management-mode .management-hub > button > svg:last-child { color: var(--ui-accent); }
+.admin-shell .management-mode .management-hub > button:hover { background: var(--ui-elevated); }
+.admin-shell .management-mode .management-hub > button:active { background: var(--ui-soft); }
+@media (max-width: 640px) {
+  .management-mode > .content { padding-top: 16px; padding-bottom: var(--mobile-nav-clearance); }
+  .management-mode .management-hub > h2 { font-size: 21px; }
+  .admin-shell .management-mode .management-hub > button { min-height: 92px; padding: 16px; }
+}
+
 .admin-preview-note { font-size: 11px; color: var(--ui-muted); margin-bottom: 18px; }
 .admin-preview-note summary { cursor: pointer; min-height: 44px; align-content: center; }
 .admin-preview-note p { margin: 0 0 12px; line-height: 1.7; max-width: 560px; }
@@ -1481,7 +1503,7 @@ th {
 /* One continuous horizontal gradient across the mobile toolbar and introduction. */
 .mobile-demo-marker { display: none; }
 @media (max-width: 640px) {
-  .mobile-dashboard { --dashboard-header-gradient: linear-gradient(90deg, #0a3159, #06539f); }
+  .mobile-dashboard { --dashboard-header-gradient: var(--ui-header-background); }
   .mobile-dashboard .topbar,
   .mobile-dashboard .home-content > .mobile-dashboard-intro {
     background: var(--dashboard-header-gradient);

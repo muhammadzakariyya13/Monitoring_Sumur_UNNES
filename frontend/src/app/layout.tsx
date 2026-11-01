@@ -12,12 +12,12 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "SIMARA",
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
   },
   icons: { icon: { url: "/logo-simara.svg", type: "image/svg+xml" }, apple: "/icon-192.png" },
 };
 export const viewport: Viewport = {
-  themeColor: "#082f55",
+  themeColor: "#0a3159",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",

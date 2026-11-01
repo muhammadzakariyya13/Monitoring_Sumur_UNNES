@@ -46,9 +46,45 @@ test("Report integrity, numeric Excel, raw CSV, multi-page PDF", async ({}, info
   const bytes = await excelReport(report);
   const book = new ExcelJS.Workbook();
   await book.xlsx.load(new Uint8Array(bytes).buffer);
-  const sheet = book.getWorksheet("Rincian")!;
-  expect(sheet.getCell("B2").value).toBeInstanceOf(Date);
-  expect(typeof sheet.getCell("F2").value).toBe("number");
+  expect(book.worksheets.map((s) => s.name)).toEqual([
+    "Ringkasan Laporan",
+    "Detail Monitoring",
+  ]);
+  const summary = book.getWorksheet("Ringkasan Laporan")!;
+  const sheet = book.getWorksheet("Detail Monitoring")!;
+  expect(summary.getCell("A3").text).toBe("LAPORAN PENGGUNAAN AIR");
+  expect(summary.getCell("B9").text).toContain("DATA CONTOH");
+  report.groups.forEach((group, i) => {
+    expect(summary.getRow(13 + i).values).toEqual([
+      undefined,
+      group.label,
+      group.total,
+      group.average,
+      group.peak,
+      group.points,
+    ]);
+  });
+  expect(sheet.getCell("B9").value).toBeInstanceOf(Date);
+  expect(typeof sheet.getCell("F9").value).toBe("number");
+  report.details.forEach((record, i) => {
+    expect(sheet.getCell(i + 9, 4).value).toBe(record.name);
+    expect(sheet.getCell(i + 9, 6).value).toBe(record.volume);
+  });
+  expect(sheet.getCell("F9").numFmt).toBe("[$-421]#,##0.000");
+  expect(sheet.getCell("A9").fill).not.toEqual(sheet.getCell("A10").fill);
+  expect(sheet.getRow(9).height).toBeLessThan(42);
+  for (const worksheet of book.worksheets) {
+    expect(worksheet.pageSetup.paperSize).toBe(9);
+    expect(worksheet.pageSetup.fitToWidth).toBe(1);
+    expect(worksheet.pageSetup.printArea).toBeTruthy();
+    expect(worksheet.headerFooter.oddFooter).toContain("&P");
+  }
+  await writeFile(info.outputPath("report.xlsx"), bytes);
+  await info.attach("report.xlsx", {
+    body: Buffer.from(bytes),
+    contentType:
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
   expect(sheet.views[0].state).toBe("frozen");
   expect(sheet.autoFilter).toBeTruthy();
   const pdf = await pdfReport({
@@ -68,6 +104,14 @@ test("Report integrity, numeric Excel, raw CSV, multi-page PDF", async ({}, info
   const empty = createReport({ ...report, readings: [] });
   expect(empty.groups.every((g) => g.total === null)).toBe(true);
   expect(empty.details).toHaveLength(0);
+  const emptyBook = new ExcelJS.Workbook();
+  await emptyBook.xlsx.load(new Uint8Array(await excelReport(empty)).buffer);
+  expect(
+    emptyBook.getWorksheet("Ringkasan Laporan")!.getCell("B13").value,
+  ).toBe("Belum ada data");
+  expect(
+    emptyBook.getWorksheet("Detail Monitoring")!.getCell("A9").text,
+  ).toContain("Belum ada data");
   expect(
     reportCsv({
       ...empty,
@@ -98,12 +142,12 @@ for (const width of [390, 1440])
       await page
         .getByRole("button", { name: "Unduh Laporan", exact: true })
         .click();
-      const menu = page.getByRole("group", {name:"Format laporan"});
+      const menu = page.getByRole("group", { name: "Format laporan" });
       await expect(menu).toBeVisible();
-      const box=await menu.boundingBox();
+      const box = await menu.boundingBox();
       expect(box!.x).toBeGreaterThanOrEqual(0);
       expect(box!.y).toBeGreaterThanOrEqual(0);
-      expect(box!.y+box!.height).toBeLessThan(760);
+      expect(box!.y + box!.height).toBeLessThan(760);
       await page.screenshot({ path: `test-results/report-menu-${width}.png` });
       const download = page.waitForEvent("download");
       await page.getByRole("button", { name: label, exact: true }).click();
@@ -116,9 +160,12 @@ for (const width of [390, 1440])
       if (extension === "xlsx") {
         const book = new ExcelJS.Workbook();
         await book.xlsx.load(new Uint8Array(bytes).buffer);
-        expect(book.getWorksheet("Ringkasan")!.getCell("A8").text).toContain(
-          "DATA CONTOH",
-        );
+        expect(
+          book.getWorksheet("Ringkasan Laporan")!.getCell("B9").text,
+        ).toContain("DATA CONTOH");
+        expect(
+          book.getWorksheet("Ringkasan Laporan")!.getImages(),
+        ).toHaveLength(1);
       }
       if (extension === "csv")
         expect(bytes.subarray(0, 3).equals(Buffer.from([239, 187, 191]))).toBe(

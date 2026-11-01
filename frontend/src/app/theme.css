@@ -17,6 +17,9 @@
   --ui-accent-surface: #ecf5f9;
   --ui-overlay: #fffffff2;
   --ui-input: #fafcfe;
+  --ui-brand-navy: #0a3159;
+  --ui-brand-blue: #06539f;
+  --ui-header-background: linear-gradient(90deg, var(--ui-brand-navy), var(--ui-brand-blue));
 }
 html[data-theme="dark"] {
   color-scheme: dark;
@@ -48,12 +51,12 @@ html[data-theme="dark"] :is(.panel, .stat, .history-view .filters, .history-kpis
 html[data-theme="dark"] :is(.topbar, .history-records th) { background: var(--ui-elevated); border-color: var(--ui-border); }
 html[data-theme="dark"] :is(h1, h2, h3, .history-kpis strong, .history-view .history-intro h2, .history-records td) { color: var(--ui-text); }
 html[data-theme="dark"] :is(.data-meta, .panel-heading p, .history-intro p, .history-kpis p, .history-kpis article > small, .history-kpis strong small, .history-view .date-fields label, .history-view .history-help, .history-pagination, .history-toolbar, .connection-status, .map-help, .well-name small) { color: var(--ui-muted); }
-html[data-theme="dark"] :is(input:not([type="checkbox"]):not([type="search"]), select, textarea) { color-scheme: dark; background: var(--ui-surface); color: var(--ui-text); border-color: var(--ui-border); }
+html[data-theme="dark"] :is(input:not([type="checkbox"]):not([type="search"]), select, textarea) { color-scheme: dark; background: var(--ui-control-surface, var(--ui-surface)); color: var(--ui-text); border-color: var(--ui-border); }
 html[data-theme="dark"] :is(.secondary, .icon-button, .history-pagination button, .history-view .history-reset) { background: var(--ui-elevated); color: var(--ui-text); border-color: var(--ui-border); }
 html[data-theme="dark"] .primary { background: #06539f; color: #fff; border-color: #06539f; }
 html[data-theme="dark"] .history-toolbar label { background: var(--ui-elevated); border-color: var(--ui-border); }
 html[data-theme="dark"] :is(.history-records th, .history-records caption) { color: var(--ui-muted); }
-html[data-theme="dark"] .home-content .dashboard-hero { --hero-muted: #c8e1f4; --hero-divider: #ffffff26; background: linear-gradient(110deg, #0a3159, #06539f); border-color: var(--ui-border); }
+html[data-theme="dark"] .home-content .dashboard-hero { --hero-muted: #c8e1f4; --hero-divider: #ffffff26; background: var(--dashboard-hero-background, linear-gradient(110deg, #0a3159, #06539f)); border-color: var(--ui-border); }
 html[data-theme="dark"] .home-content .dashboard-hero .featured { background: transparent; }
 html[data-theme="dark"] .home-content .featured :is(h2, div, p, small),
 html[data-theme="dark"] .home-content .hero-summary { color: #f3f7fc; }
@@ -75,6 +78,10 @@ html[data-theme="dark"] .leaflet-tooltip-top::before { border-top-color: var(--u
 html[data-theme="dark"] .leaflet-control-attribution a { color: var(--ui-accent); }
 html[data-theme="dark"] .notice { background: var(--ui-warning-surface); color: var(--ui-warning); border-color: var(--ui-border); }
 @media (max-width: 640px) {
-  html[data-theme="dark"] :is(.mobile-dashboard, .mobile-secondary, .map-mode, .admin-shell) .topbar { background: linear-gradient(90deg, #0a3159, #06539f); }
+  html:has(.app-shell) { background: var(--ui-brand-navy); }
+  /* Paint only the OS inset; the existing toolbar still reserves its full safe area. */
+  body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top, 0px); background: var(--ui-header-background); pointer-events: none; z-index: 49; }
+  html[data-theme="dark"] .mobile-dashboard { --dashboard-hero-background: var(--ui-surface); }
+  html[data-theme="dark"] :is(.mobile-dashboard, .mobile-secondary, .map-mode, .admin-shell) .topbar { background: var(--ui-header-background); }
 }
 /* OpenStreetMap tiles and attribution are kept intact, without color filters. */

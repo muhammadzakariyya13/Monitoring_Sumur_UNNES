@@ -367,7 +367,7 @@ export default function Dashboard({ adminPreview = false }: { adminPreview?: boo
           <ChevronRight size={16} aria-hidden="true" />
         </button>
       </aside>
-      <div className={`app-main ${tab === "map" ? "map-mode" : ""}${tab === "dashboard" ? " mobile-dashboard" : ""}${mobileHeaderCollapsed ? " dashboard-header-collapsed" : ""}${tab === "history" || tab === "profile" ? " mobile-secondary" : ""}`}>
+      <div className={`app-main ${tab === "map" ? "map-mode" : ""}${tab === "manage" ? " management-mode" : ""}${tab === "dashboard" ? " mobile-dashboard" : ""}${mobileHeaderCollapsed ? " dashboard-header-collapsed" : ""}${tab === "history" || tab === "profile" ? " mobile-secondary" : ""}`}>
         <header className={`topbar${role === "ADMIN" && (tab === "locations" || tab === "users") ? " admin-child-header" : ""}`}>
           {role === "ADMIN" && (tab === "locations" || tab === "users") && <MobileBackButton onClick={() => setTab("manage")} />}
           <div>
